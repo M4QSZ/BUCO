@@ -105,7 +105,7 @@ class RestaurantCard extends StatelessWidget {
               rating.toString(),
               style: const TextStyle(
                 color: Colors.white,
-                fontFamily: 'Bernoru',
+                fontWeight: FontWeight.w900,
                 fontSize: 22,
                 height: 1.0,
               ),
