@@ -83,7 +83,6 @@ class RestaurantCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: cardColor ?? Colors.orange,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: creamWhite, width: 4),
               image: imageUrl != null && !imageUrl!.toLowerCase().endsWith('.svg')
                 ? DecorationImage(
                     image: imageUrl!.startsWith('http') 
