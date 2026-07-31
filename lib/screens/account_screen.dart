@@ -43,7 +43,7 @@ class AccountScreen extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               'assets/icons/Asset 30.svg',
-                              width: 28,
+                              height: 24,
                               colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                             ),
                             SvgPicture.asset(
@@ -58,11 +58,11 @@ class AccountScreen extends StatelessWidget {
                                   MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
                                 );
                               },
-                              child: SvgPicture.asset(
-                                'assets/icons/Asset 29.svg',
-                                width: 28,
-                                colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
-                              ),
+                               child: SvgPicture.asset(
+                                 'assets/icons/Asset 29.svg',
+                                 width: 22,
+                                 colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                               ),
                             ),
                           ],
                         ),
