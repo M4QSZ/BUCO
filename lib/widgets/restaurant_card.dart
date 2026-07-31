@@ -75,11 +75,11 @@ class RestaurantCard extends StatelessWidget {
         // SVG: logo a ~-10.3% left, ~22.6% top, tamaño ~70% del ancho
         // Con card width=160: left≈-16, top≈50, tamaño≈110
         Positioned(
-          top: 40,
-          left: -28,
+          top: 50,
+          left: -22,
           child: SizedBox(
-            width: 160,
-            height: 160,
+            width: 140,
+            height: 140,
             child: imageUrl != null && imageUrl!.toLowerCase().endsWith('.svg')
                 ? SvgPicture.asset(
                     imageUrl!,
