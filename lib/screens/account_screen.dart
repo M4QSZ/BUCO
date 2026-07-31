@@ -55,7 +55,11 @@ class AccountScreen extends StatelessWidget {
                                   MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
                                 );
                               },
-                              child: const Icon(Icons.menu, color: creamWhite, size: 28),
+                              child: SvgPicture.asset(
+                                'assets/icons/Asset 29.svg',
+                                width: 28,
+                                colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                              ),
                             ),
                           ],
                         ),
@@ -169,19 +173,12 @@ class AccountScreen extends StatelessWidget {
                           style: TextStyle(color: creamWhite, fontSize: 18),
                         ),
                       ),
-                      Container(
+                      SizedBox(
                         width: 40,
                         height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: SvgPicture.asset(
-                            'assets/icons/burger_king.svg',
-                            fit: BoxFit.cover,
-                          ),
+                        child: SvgPicture.asset(
+                          'assets/icons/burger_king.svg',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ],
