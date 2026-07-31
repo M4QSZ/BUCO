@@ -99,7 +99,11 @@ class AccountScreen extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      const Icon(Icons.edit, color: creamWhite, size: 18),
+                                      SvgPicture.asset(
+                                        'assets/icons/Asset 28.svg',
+                                        width: 18,
+                                        colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                                      ),
                                     ],
                                   ),
                                   Text(
