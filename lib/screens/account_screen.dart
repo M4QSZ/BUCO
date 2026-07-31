@@ -193,6 +193,8 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
+                _buildPaginationDots(Colors.white),
+                const SizedBox(height: 15),
               ],
             ),
           ),
@@ -243,7 +245,9 @@ class AccountScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
+                  _buildPaginationDots(greenBg),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -253,6 +257,22 @@ class AccountScreen extends StatelessWidget {
 );
   }
 
+  Widget _buildPaginationDots(Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(4, (index) {
+        return Container(
+          width: 50,
+          height: 4,
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
+    );
+  }
 
   Widget _buildStat(String number, String label) {
     const Color primaryBrown = Color(0xFF662715);
