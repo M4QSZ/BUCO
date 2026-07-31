@@ -22,7 +22,10 @@ class AccountScreen extends StatelessWidget {
               children: [
                 // Cabecera Naranja Completa
                 Container(
-                  padding: const EdgeInsets.only(top: 45, bottom: 20),
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + 15,
+                    bottom: 20,
+                  ),
                   decoration: const BoxDecoration(
                     color: primaryOrange,
                     borderRadius: BorderRadius.only(
@@ -86,6 +89,7 @@ class AccountScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Flexible(
                                         child: Text(
