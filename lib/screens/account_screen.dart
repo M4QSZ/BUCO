@@ -80,7 +80,6 @@ class AccountScreen extends StatelessWidget {
                               child: SvgPicture.asset(
                                 'assets/icons/profile_icon.svg',
                                 height: 55,
-                                colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                               ),
                             ),
                             const SizedBox(width: 16),
