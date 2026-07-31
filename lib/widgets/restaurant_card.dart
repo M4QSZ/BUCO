@@ -82,19 +82,20 @@ class RestaurantCard extends StatelessWidget {
             height: 105,
             decoration: BoxDecoration(
               color: cardColor ?? Colors.orange,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: creamWhite, width: 4),
               image: imageUrl != null && !imageUrl!.toLowerCase().endsWith('.svg')
                 ? DecorationImage(
                     image: imageUrl!.startsWith('http') 
                         ? NetworkImage(imageUrl!) as ImageProvider
                         : AssetImage(imageUrl!),
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
                   ) 
                 : null,
             ),
             child: imageUrl != null && imageUrl!.toLowerCase().endsWith('.svg')
-                ? ClipOval(
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
                     child: SvgPicture.asset(
                       imageUrl!,
                       fit: BoxFit.cover,

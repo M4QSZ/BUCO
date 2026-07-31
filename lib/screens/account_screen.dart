@@ -172,11 +172,12 @@ class AccountScreen extends StatelessWidget {
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.white,
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: ClipOval(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
                           child: SvgPicture.asset(
                             'assets/icons/burger_king.svg',
                             fit: BoxFit.cover,
