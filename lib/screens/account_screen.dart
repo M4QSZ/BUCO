@@ -84,43 +84,47 @@ class AccountScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Flexible(
-                                        child: Text(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        Text(
                                           'Andrés Velasco',
                                           style: TextStyle(
                                             color: primaryBrown,
                                             fontWeight: FontWeight.w900,
-                                            fontSize: 20,
+                                            fontSize: 22,
+                                            height: 1.0,
                                           ),
-                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      SvgPicture.asset(
+                                        Text(
+                                          '¡¡hola!!',
+                                          style: TextStyle(
+                                            color: primaryBrown,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Positioned(
+                                      top: -5,
+                                      right: -10,
+                                      child: SvgPicture.asset(
                                         'assets/icons/Asset 28.svg',
                                         width: 18,
-                                        colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                                       ),
-                                    ],
-                                  ),
-                                  Text(
-                                    '¡¡hola!!',
-                                    style: TextStyle(
-                                      color: primaryBrown.withOpacity(0.8),
-                                      fontSize: 14,
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                             const Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Rep',
