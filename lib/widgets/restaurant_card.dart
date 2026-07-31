@@ -36,8 +36,8 @@ class RestaurantCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 160,
-        margin: const EdgeInsets.only(right: 16),
+        width: 175,
+        margin: const EdgeInsets.only(right: 24),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
@@ -63,9 +63,9 @@ class RestaurantCard extends StatelessWidget {
           child: Text(
             name.replaceAll(' ', '\n'),
             style: const TextStyle(
+              fontFamily: 'Bernoru',
               color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: 24,
+              fontSize: 26,
               height: 0.95,
             ),
           ),

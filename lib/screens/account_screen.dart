@@ -169,16 +169,16 @@ class AccountScreen extends StatelessWidget {
                     children: [
                       Container(
                         width: double.infinity,
-                        margin: const EdgeInsets.only(top: 15),
-                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(top: 25),
+                        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                         decoration: BoxDecoration(
                           color: primaryBrown,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(35),
                         ),
                         child: const Text(
-                          '"Muy buena comida!!"',
+                          '“Muy buena comida!!”',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: creamWhite, fontSize: 18),
+                          style: TextStyle(color: creamWhite, fontSize: 20),
                         ),
                       ),
                       SizedBox(
@@ -192,8 +192,6 @@ class AccountScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 15),
-                _buildPaginationDots(Colors.white),
                 const SizedBox(height: 15),
               ],
             ),
@@ -221,7 +219,7 @@ class AccountScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    height: 220,
+                    height: 260,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.only(left: 45, right: 16),
@@ -245,9 +243,7 @@ class AccountScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  _buildPaginationDots(greenBg),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -255,23 +251,6 @@ class AccountScreen extends StatelessWidget {
         ],
       ),
 );
-  }
-
-  Widget _buildPaginationDots(Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(8, (index) {
-        return Container(
-          width: 16,
-          height: 4,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        );
-      }),
-    );
   }
 
 
