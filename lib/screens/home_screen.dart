@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/restaurant_card.dart';
 import 'settings_menu_screen.dart';
+import 'map/map_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,32 +16,51 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: creamWhite,
-      appBar: AppBar(
-        backgroundColor: creamWhite,
-        elevation: 0,
-        leading: SvgPicture.asset(
-          'assets/icons/Asset 30.svg',
-          fit: BoxFit.scaleDown,
-          colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
-        ),
-        title: SvgPicture.asset(
-          'assets/icons/Asset 52.svg',
-          height: 40,
-          colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: primaryBrown),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
-              );
-            },
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 15,
+            left: 16,
+            right: 16,
+            bottom: 8,
           ),
-          const SizedBox(width: 8),
-        ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MapScreen()),
+                  );
+                },
+                child: SvgPicture.asset(
+                  'assets/icons/Asset 30.svg',
+                  height: 28,
+                  colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                ),
+              ),
+              SvgPicture.asset(
+                'assets/icons/Asset 53.svg', // Logo BUCO con ubicación
+                height: 50,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
+                  );
+                },
+                child: SvgPicture.asset(
+                  'assets/icons/menu_icon.svg',
+                  width: 22,
+                  colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 120),
@@ -49,45 +69,18 @@ class HomeScreen extends StatelessWidget {
           children: [
             // Banner Principal
             Container(
-              height: 180,
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              height: 220,
+              margin: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 image: const DecorationImage(
-                  image: AssetImage('assets/images/burger.jpg'), // Burger placeholder
+                  image: AssetImage('assets/images/Asset 31.png'),
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.7),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                  const Positioned(
-                    bottom: 16,
-                    left: 16,
-                    child: Text(
-                      'PROMO MCMELT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
+            _buildPaginationDots(greenBg),
+            const SizedBox(height: 16),
             
             // Categorías
             Container(
@@ -108,17 +101,26 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.arrow_back_ios, color: creamWhite, size: 20),
+                      SvgPicture.asset(
+                        'assets/icons/pagination_arrow.svg',
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                      ),
                       // Puntitos de paginación
                       Row(
-                        children: [
-                          _buildDot(true),
-                          _buildDot(false),
-                          _buildDot(false),
-                          _buildDot(false),
-                        ],
+                        children: List.generate(
+                          11,
+                          (index) => _buildDot(index == 0),
+                        ),
                       ),
-                      const Icon(Icons.arrow_forward_ios, color: creamWhite, size: 20),
+                      Transform.flip(
+                        flipX: true,
+                        child: SvgPicture.asset(
+                          'assets/icons/pagination_arrow.svg',
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -131,7 +133,9 @@ class HomeScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'LOS MAS QUERIDOS',
+                textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontFamily: 'Bernoru',
                   color: primaryBrown,
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -140,25 +144,64 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 220,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  RestaurantCard(
-                    name: 'LUCCA', 
-                    type: 'Italiana', 
-                    rating: 4.5,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 200,
+                    child: Row(
+                      children: const [
+                        Expanded(
+                          child: RestaurantCard(
+                            name: 'LUCCA', 
+                            type: 'Italiana', 
+                            rating: 4.5,
+                            imageUrl: 'assets/images/Asset 35.png',
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: RestaurantCard(
+                            name: 'GIORGIO\'S', 
+                            type: 'Italiana', 
+                            rating: 4.0,
+                            imageUrl: 'assets/images/Asset 34.png',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  RestaurantCard(
-                    name: 'GIORGIO\'S', 
-                    type: 'Italiana', 
-                    rating: 4.0,
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 200,
+                    child: Row(
+                      children: const [
+                        Expanded(
+                          child: RestaurantCard(
+                            name: 'NAPOLI', 
+                            type: 'Pizzas', 
+                            rating: 4.8,
+                            imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop',
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: RestaurantCard(
+                            name: 'LOS AÑOS LOCOS', 
+                            type: 'Carnes', 
+                            rating: 4.7,
+                            imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            _buildPaginationDots(greenBg),
             const SizedBox(height: 24),
 
             // Tus Favoritos
@@ -173,6 +216,7 @@ class HomeScreen extends StatelessWidget {
                     child: Text(
                       'TUS FAVORITOS',
                       style: TextStyle(
+                        fontFamily: 'Bernoru',
                         color: creamWhite,
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
@@ -182,32 +226,33 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 220,
+                    height: 260,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 45),
                       children: const [
                         RestaurantCard(
                           name: 'BURGER KING', 
                           type: '', 
                           rating: 4.5, 
-                          backgroundColor: primaryOrange,
+                          isSavedStyle: true,
+                          imageUrl: 'assets/icons/burger_king.svg',
                           cardColor: Colors.white,
-                          isLargeTitle: true,
-                          imageUrl: 'assets/images/bk_logo.png',
                         ),
+                        SizedBox(width: 24), // Añadido para recuperar el espacio
                         RestaurantCard(
                           name: 'MAC DONALDS', 
                           type: '', 
                           rating: 4.0, 
-                          backgroundColor: primaryOrange,
-                          cardColor: Colors.white,
-                          isLargeTitle: true,
-                          imageUrl: 'assets/images/mcd_logo.png',
+                          isSavedStyle: true,
+                          imageUrl: 'assets/icons/mcdonalds.svg',
+                          cardColor: Color(0xFFDA291C),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 24),
+                  _buildPaginationDots(Colors.white),
                 ],
               ),
             ),
@@ -220,6 +265,7 @@ class HomeScreen extends StatelessWidget {
                 'DESCUBRE',
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontFamily: 'Bernoru',
                   color: primaryBrown,
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -230,27 +276,22 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             SizedBox(
               height: 80,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildColorBox(Colors.red),
+                  const SizedBox(width: 16),
                   _buildColorBox(greenBg),
+                  const SizedBox(width: 16),
                   _buildColorBox(primaryOrange),
+                  const SizedBox(width: 16),
                   _buildColorBox(const Color(0xFFF2BF4A)),
                 ],
               ),
             ),
             const SizedBox(height: 16),
             // Puntitos de paginación para Descubre
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildDot(true, color: primaryBrown),
-                _buildDot(false, color: primaryBrown),
-                _buildDot(false, color: primaryBrown),
-              ],
-            ),
+            _buildPaginationDots(greenBg),
             const SizedBox(height: 32),
 
             // Review final
@@ -271,13 +312,45 @@ class HomeScreen extends StatelessWidget {
                     child: const Text(
                       '"Muy buena comida!!"',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: creamWhite, fontSize: 16),
+                      style: TextStyle(
+                        fontFamily: 'Bernoru',
+                        color: creamWhite, 
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.white,
-                    backgroundImage: AssetImage('assets/images/bk_logo.png'),
+                  SvgPicture.asset(
+                    'assets/icons/burger_kin.svg',
+                    width: 40,
+                    height: 40,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/pagination_arrow.svg',
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(greenBg, BlendMode.srcIn),
+                  ),
+                  Row(
+                    children: List.generate(
+                      11,
+                      (index) => _buildDot(index == 0, color: greenBg),
+                    ),
+                  ),
+                  Transform.flip(
+                    flipX: true,
+                    child: SvgPicture.asset(
+                      'assets/icons/pagination_arrow.svg',
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(greenBg, BlendMode.srcIn),
+                    ),
                   ),
                 ],
               ),
@@ -305,7 +378,8 @@ class HomeScreen extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: const Color(0xFFF2BF4A),
+            fontFamily: 'Bernoru',
+            color: Color(0xFFF2BF4A),
             fontWeight: FontWeight.w900,
             fontSize: 12,
           ),
@@ -329,11 +403,28 @@ class HomeScreen extends StatelessWidget {
   Widget _buildColorBox(Color color) {
     return Container(
       width: 80,
-      margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
       ),
+    );
+  }
+
+  Widget _buildPaginationDots(Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(9, (index) {
+        bool isEdge = index == 0 || index == 8;
+        return Container(
+          width: isEdge ? 15.0 : 30.0,
+          height: 4.0,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        );
+      }),
     );
   }
 }

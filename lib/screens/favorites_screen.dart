@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/restaurant_card.dart';
+import 'settings_menu_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -10,16 +11,20 @@ class FavoritesScreen extends StatelessWidget {
     const Color primaryBrown = Color(0xFF662715);
     const Color primaryOrange = Color(0xFFF0531C);
     const Color creamWhite = Color(0xFFF8EDDB);
+    const Color greenBg = Color(0xFF2E563B);
 
     return Scaffold(
       backgroundColor: creamWhite,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: const EdgeInsets.only(bottom: 60),
         child: Column(
           children: [
             // Cabecera Naranja
             Container(
-              padding: const EdgeInsets.only(top: 60, bottom: 40), // Masiva
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 15,
+                bottom: 20,
+              ),
               decoration: const BoxDecoration(
                 color: primaryOrange,
                 borderRadius: BorderRadius.only(
@@ -37,7 +42,7 @@ class FavoritesScreen extends StatelessWidget {
                       children: [
                         SvgPicture.asset(
                           'assets/icons/Asset 30.svg',
-                          width: 28,
+                          height: 28,
                           colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                         ),
                         SvgPicture.asset(
@@ -45,35 +50,47 @@ class FavoritesScreen extends StatelessWidget {
                           height: 50,
                           colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                         ),
-                        const Icon(Icons.menu, color: creamWhite, size: 28),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
+                            );
+                          },
+                          child: SvgPicture.asset(
+                            'assets/icons/menu_icon.svg',
+                            width: 22,
+                            colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 15),
                   
                   // Perfil simplificado
-                  const CircleAvatar(
-                    radius: 40,
-                    backgroundColor: creamWhite,
-                    child: Icon(Icons.person, size: 55, color: primaryBrown),
+                  SvgPicture.asset(
+                    'assets/icons/profile_icon.svg',
+                    width: 76,
+                    height: 76,
                   ),
                   const SizedBox(height: 12),
                   const Text(
                     'Andrés Velasco',
                     style: TextStyle(
                       color: primaryBrown,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.bold,
                       fontSize: 22,
                     ),
                   ),
-                  Text(
+                  const Text(
                     '¡¡hola!!',
                     style: TextStyle(
-                      color: primaryBrown.withOpacity(0.8),
-                      fontSize: 14,
+                      color: primaryBrown,
+                      fontSize: 16,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 15),
                   
                   // Contador de Favoritos
                   const Column(
@@ -82,8 +99,9 @@ class FavoritesScreen extends StatelessWidget {
                         '0',
                         style: TextStyle(
                           color: creamWhite,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 36,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 48,
+                          height: 1.1,
                         ),
                       ),
                       Text(
@@ -91,7 +109,7 @@ class FavoritesScreen extends StatelessWidget {
                         style: TextStyle(
                           color: primaryBrown,
                           fontWeight: FontWeight.w900,
-                          fontSize: 16,
+                          fontSize: 20,
                           letterSpacing: 1,
                         ),
                       ),
@@ -100,56 +118,69 @@ class FavoritesScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 25),
 
             // Icono de guardado gigante
-            const Icon(
-              Icons.bookmark,
-              color: Color(0xFFF2BF4A),
-              size: 60,
+            SvgPicture.asset(
+              'assets/icons/FAV.svg',
+              width: 35,
+              colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
             ),
             const SizedBox(height: 30),
 
             // Lista de restaurantes (Tus Favoritos)
             SizedBox(
-              height: 220,
+              height: 260,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 45),
                 children: const [
                   RestaurantCard(
                     name: 'BURGER KING', 
                     type: '', 
                     rating: 4.5, 
-                    backgroundColor: primaryOrange,
-                    cardColor: Colors.white,
-                    isLargeTitle: true,
                     isSavedStyle: true,
-                    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Burger_King_2020.svg/1024px-Burger_King_2020.svg.png',
+                    imageUrl: 'assets/icons/burger_king.svg',
+                    cardColor: Colors.white,
                   ),
+                  SizedBox(width: 24),
                   RestaurantCard(
                     name: 'MAC DONALDS', 
                     type: '', 
                     rating: 4.0, 
-                    backgroundColor: primaryOrange,
-                    cardColor: Colors.white,
-                    isLargeTitle: true,
                     isSavedStyle: true,
-                    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/1024px-McDonald%27s_Golden_Arches.svg.png',
+                    imageUrl: 'assets/icons/mcdonalds.svg',
+                    cardColor: Color(0xFFDA291C),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 30),
+            
+            // Paginación verde
+            _buildPaginationDots(greenBg),
             const SizedBox(height: 20),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.more_horiz, color: primaryBrown, size: 50),
-              ],
-            )
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPaginationDots(Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(9, (index) {
+        bool isEdge = index == 0 || index == 8;
+        return Container(
+          width: isEdge ? 15.0 : 30.0,
+          height: 4.0,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        );
+      }),
     );
   }
 }

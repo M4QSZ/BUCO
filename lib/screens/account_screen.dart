@@ -43,7 +43,7 @@ class AccountScreen extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               'assets/icons/Asset 30.svg',
-                              height: 24,
+                              height: 28,
                               colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                             ),
                             SvgPicture.asset(
@@ -59,7 +59,7 @@ class AccountScreen extends StatelessWidget {
                                 );
                               },
                                child: SvgPicture.asset(
-                                 'assets/icons/Asset 29.svg',
+                                 'assets/icons/menu_icon.svg',
                                  width: 22,
                                  colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                                ),
@@ -94,7 +94,7 @@ class AccountScreen extends StatelessWidget {
                                           'Andrés Velasco',
                                           style: TextStyle(
                                             color: primaryBrown,
-                                            fontWeight: FontWeight.w900,
+                                            fontWeight: FontWeight.bold,
                                             fontSize: 22,
                                             height: 1.0,
                                           ),
@@ -136,7 +136,7 @@ class AccountScreen extends StatelessWidget {
                                   '020.000',
                                   style: TextStyle(
                                     color: creamWhite,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w600,
                                     fontSize: 24,
                                   ),
                                 ),
@@ -225,7 +225,7 @@ class AccountScreen extends StatelessWidget {
                     height: 260,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(left: 45, right: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 45),
                       children: const [
                         RestaurantCard(
                           name: 'BURGER KING',
@@ -235,6 +235,7 @@ class AccountScreen extends StatelessWidget {
                           imageUrl: 'assets/icons/burger_king.svg',
                           cardColor: Colors.white,
                         ),
+                        SizedBox(width: 24),
                         RestaurantCard(
                           name: 'MAC DONALDS',
                           type: '',
@@ -286,7 +287,7 @@ class AccountScreen extends StatelessWidget {
           number,
           style: const TextStyle(
             color: creamWhite,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             fontSize: 28,
           ),
         ),

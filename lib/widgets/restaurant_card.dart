@@ -36,8 +36,8 @@ class RestaurantCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 175,
-        margin: const EdgeInsets.only(right: 24),
+        width: 170, // Ajustado para un aspecto más cuadrado
+        // Se quitó el margin right, ahora se maneja con SizedBox en el ListView
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
@@ -131,14 +131,15 @@ class RestaurantCard extends StatelessWidget {
   Widget _buildHomeStyle(Color primaryBrown, Color creamWhite) {
     return Stack(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Imagen superior (cuadrada redondeada)
               Container(
-                height: 90,
+                height: 105, // Ajustado para proporción más cuadrada
                 decoration: BoxDecoration(
                   color: cardColor ?? Colors.black12,
                   borderRadius: BorderRadius.circular(12),
@@ -164,18 +165,22 @@ class RestaurantCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               // Título
-              Text(
-                name.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  height: 1.1,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  name.toUpperCase(),
+                  style: const TextStyle(
+                    fontFamily: 'Bernoru',
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 22, // Escalará hacia abajo automáticamente si es muy largo
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const Spacer(), // Empuja el texto "Italiana" hacia abajo
               // Subtítulo
               if (type.isNotEmpty) Text(
                 type,
@@ -187,6 +192,7 @@ class RestaurantCard extends StatelessWidget {
             ],
           ),
         ),
+        ), // Cierra Positioned.fill
         
         // Badge de calificación
         Positioned(
@@ -201,9 +207,10 @@ class RestaurantCard extends StatelessWidget {
             child: Text(
               rating.toString(),
               style: const TextStyle(
+                fontFamily: 'Bernoru',
                 color: Colors.white,
                 fontWeight: FontWeight.w900,
-                fontSize: 14,
+                fontSize: 18,
               ),
             ),
           ),

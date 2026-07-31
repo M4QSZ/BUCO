@@ -21,11 +21,15 @@ class SettingsMenuScreen extends StatelessWidget {
           children: [
             // Top Bar - back arrow
             Padding(
-              padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 8),
+              padding: const EdgeInsets.only(left: 16, top: 0, right: 16, bottom: 0),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: primaryBrown, size: 30),
+                  icon: SvgPicture.asset(
+                    'assets/icons/back_arrow.svg',
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -48,7 +52,7 @@ class SettingsMenuScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 8),
             
             // Name and Email
             const Text(
@@ -67,11 +71,11 @@ class SettingsMenuScreen extends StatelessWidget {
                 fontSize: 14,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             
             // Logout Button
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
+              padding: const EdgeInsets.symmetric(horizontal: 75),
               child: SizedBox(
                 width: double.infinity,
                 height: 55,
@@ -90,23 +94,21 @@ class SettingsMenuScreen extends StatelessWidget {
                       (Route<dynamic> route) => false,
                     );
                   },
-                  child: const FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'CERRAR SESIÓN',
-                      style: TextStyle(
-                        fontFamily: 'Bernoru',
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                        color: creamWhite,
-                        fontSize: 24,
-                      ),
+                  child: const Text(
+                    'CERRAR SESIÓN',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Bernoru',
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                      color: creamWhite,
+                      fontSize: 16,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 16),
             
             // Menu Items and Bottom Mascot
             Expanded(
@@ -115,13 +117,13 @@ class SettingsMenuScreen extends StatelessWidget {
                   children: [
                     // Mascot fixed at the bottom - cropped so only top part shows
                     Positioned(
-                      bottom: -60,
-                      left: 0,
-                      right: 0,
+                      bottom: -80,
+                      left: -40,
+                      right: -40,
                       child: IgnorePointer(
                         child: SvgPicture.asset(
                           'assets/icons/Asset 27.svg',
-                          width: MediaQuery.of(context).size.width,
+                          width: MediaQuery.of(context).size.width * 1.2,
                           fit: BoxFit.fitWidth,
                           alignment: Alignment.topCenter,
                         ),
@@ -134,7 +136,7 @@ class SettingsMenuScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 0),
                           _buildMenuItem('assets/icons/CONTRASEÑA.svg', 'Privacidad de la cuenta', greenBg, starYellow, primaryBrown),
                           _buildMenuItem('assets/icons/FAQ.svg', 'FAQ', greenBg, starYellow, primaryBrown),
                           _buildMenuItem('assets/icons/AYUDA.svg', 'Ayuda', greenBg, starYellow, primaryBrown),
@@ -167,8 +169,8 @@ class SettingsMenuScreen extends StatelessWidget {
             child: Center(
               child: SvgPicture.asset(
                 assetPath,
-                width: 20,
-                height: 20,
+                width: 26,
+                height: 26,
                 colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
               ),
             ),
@@ -184,7 +186,14 @@ class SettingsMenuScreen extends StatelessWidget {
               ),
             ),
           ),
-          Icon(Icons.arrow_forward_ios, color: textColor, size: 18),
+          Transform.flip(
+            flipX: true,
+            child: SvgPicture.asset(
+              'assets/icons/back_arrow.svg',
+              height: 15,
+              colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn),
+            ),
+          ),
         ],
       ),
     );
