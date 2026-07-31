@@ -64,8 +64,8 @@ class RestaurantCard extends StatelessWidget {
             name.replaceAll(' ', '\n'),
             style: const TextStyle(
               fontFamily: 'Bernoru',
-              color: Color(0xFF662715),
-              fontSize: 18,
+              color: Colors.white,
+              fontSize: 16,
               height: 0.95,
             ),
           ),
@@ -105,8 +105,9 @@ class RestaurantCard extends StatelessWidget {
               rating.toString(),
               style: const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 16,
+                fontFamily: 'Bernoru',
+                fontSize: 22,
+                height: 1.0,
               ),
             ),
           ),
