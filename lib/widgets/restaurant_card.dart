@@ -76,10 +76,10 @@ class RestaurantCard extends StatelessWidget {
         // Con card width=160: left≈-16, top≈50, tamaño≈110
         Positioned(
           top: 75,
-          left: -15,
+          left: -20,
           child: SizedBox(
-            width: 105,
-            height: 105,
+            width: 130,
+            height: 130,
             child: imageUrl != null && imageUrl!.toLowerCase().endsWith('.svg')
                 ? SvgPicture.asset(
                     imageUrl!,
