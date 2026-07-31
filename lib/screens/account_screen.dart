@@ -49,7 +49,7 @@ class AccountScreen extends StatelessWidget {
                             SvgPicture.asset(
                               'assets/icons/Asset 52.svg',
                               height: 50,
-                              colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                             ),
                             GestureDetector(
                               onTap: () {

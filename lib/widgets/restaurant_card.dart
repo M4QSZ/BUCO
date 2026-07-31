@@ -64,7 +64,7 @@ class RestaurantCard extends StatelessWidget {
             name.replaceAll(' ', '\n'),
             style: const TextStyle(
               fontFamily: 'Bernoru',
-              color: Colors.white,
+              color: Color(0xFF662715),
               fontSize: 18,
               height: 0.95,
             ),
@@ -120,7 +120,7 @@ class RestaurantCard extends StatelessWidget {
           child: SvgPicture.asset(
             'assets/icons/FAV SIN MARCAR.svg',
             width: 22,
-            colorFilter: ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
           ),
         ),
       ],
