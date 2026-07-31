@@ -65,7 +65,7 @@ class RestaurantCard extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Bernoru',
               color: Colors.white,
-              fontSize: 26,
+              fontSize: 18,
               height: 0.95,
             ),
           ),
@@ -75,8 +75,8 @@ class RestaurantCard extends StatelessWidget {
         // SVG: logo a ~-10.3% left, ~22.6% top, tamaño ~70% del ancho
         // Con card width=160: left≈-16, top≈50, tamaño≈110
         Positioned(
-          top: 65,
-          left: -18,
+          top: 75,
+          left: -15,
           child: SizedBox(
             width: 105,
             height: 105,
