@@ -260,14 +260,15 @@ class AccountScreen extends StatelessWidget {
   Widget _buildPaginationDots(Color color) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
+      children: List.generate(9, (index) {
+        bool isEdge = index == 0 || index == 8;
         return Container(
-          width: 50,
-          height: 4,
-          margin: const EdgeInsets.symmetric(horizontal: 6),
+          width: isEdge ? 15.0 : 30.0,
+          height: 4.0,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(2),
           ),
         );
       }),
