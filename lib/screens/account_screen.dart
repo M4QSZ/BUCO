@@ -74,13 +74,10 @@ class AccountScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              radius: 32,
-                              backgroundColor: creamWhite,
-                              child: SvgPicture.asset(
-                                'assets/icons/profile_icon.svg',
-                                height: 55,
-                              ),
+                            SvgPicture.asset(
+                              'assets/icons/profile_icon.svg',
+                              width: 64,
+                              height: 64,
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -117,6 +114,7 @@ class AccountScreen extends StatelessWidget {
                                       child: SvgPicture.asset(
                                         'assets/icons/Asset 28.svg',
                                         width: 18,
+                                        colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                                       ),
                                     ),
                                   ],

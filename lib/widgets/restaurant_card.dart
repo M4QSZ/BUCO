@@ -120,7 +120,7 @@ class RestaurantCard extends StatelessWidget {
           child: SvgPicture.asset(
             'assets/icons/FAV SIN MARCAR.svg',
             width: 22,
-            colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(Color(0xFF662715), BlendMode.srcIn),
           ),
         ),
       ],
