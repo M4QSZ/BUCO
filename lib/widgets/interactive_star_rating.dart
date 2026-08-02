@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class InteractiveStarRating extends StatefulWidget {
   final double initialRating;
   final ValueChanged<double> onRatingChanged;
+  final Color creamWhite = const Color(0xFFF8EDDB);
 
   const InteractiveStarRating({
     Key? key,
@@ -34,46 +36,46 @@ class _InteractiveStarRatingState extends State<InteractiveStarRating> {
   Widget _buildInteractiveStar(int index) {
     double starValue = index + 1.0;
     return GestureDetector(
-      onPanUpdate: (details) {
-        RenderBox box = context.findRenderObject() as RenderBox;
-        Offset localPosition = box.globalToLocal(details.globalPosition);
-        
-        // Asumiendo que el ancho total de las 5 estrellas es de ~200 (40 * 5)
-        // Calculamos la estrella basada en la posición X
-        double newRating = (localPosition.dx / 40.0).clamp(0.0, 5.0);
-        
-        // Redondear a la media estrella más cercana
-        newRating = (newRating * 2).round() / 2.0;
-        
-        if (newRating != _selectedStars) {
-          setState(() {
-            _selectedStars = newRating;
-          });
-          widget.onRatingChanged(_selectedStars);
-        }
-      },
       onTapDown: (details) {
-        RenderBox box = context.findRenderObject() as RenderBox;
-        double localX = details.localPosition.dx;
-        
-        double newRating = index + (localX > 15 ? 1.0 : 0.5);
-        if (newRating != _selectedStars) {
+        if (details.localPosition.dx < 16) {
           setState(() {
-            _selectedStars = newRating;
+            _selectedStars = index + 0.5;
           });
-          widget.onRatingChanged(_selectedStars);
+        } else {
+          setState(() {
+            _selectedStars = index + 1.0;
+          });
         }
+        widget.onRatingChanged(_selectedStars);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Icon(
-          _selectedStars >= starValue
-              ? Icons.star
-              : _selectedStars >= starValue - 0.5
-                  ? Icons.star_half
-                  : Icons.star_border,
-          color: const Color(0xFFF2BF4A), // Amarillo
-          size: 40,
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: Stack(
+            children: [
+              SvgPicture.asset(
+                'assets/media/5968f1_star_custom.svg',
+                height: 32,
+                width: 32,
+                colorFilter: ColorFilter.mode(widget.creamWhite.withValues(alpha: 0.3), BlendMode.srcIn),
+              ),
+              if (_selectedStars > index)
+                ClipRect(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: _selectedStars >= starValue ? 1.0 : 0.5,
+                    child: SvgPicture.asset(
+                      'assets/media/5968f1_star_custom.svg',
+                      height: 32,
+                      width: 32,
+                      colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

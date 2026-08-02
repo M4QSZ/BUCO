@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'restaurant_card.dart';
+import 'carousel_indicator.dart';
 
 class AutoScrollRestaurantCarousel extends StatefulWidget {
   final List<Map<String, dynamic>> restaurants;
@@ -111,21 +112,10 @@ class _AutoScrollRestaurantCarouselState extends State<AutoScrollRestaurantCarou
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(widget.restaurants.length, (index) {
-            bool isEdge = index == 0 || index == widget.restaurants.length - 1;
-            bool isActive = index == _currentIndex;
-            return Container(
-              width: isActive ? 35.0 : (isEdge ? 15.0 : 30.0),
-              height: 4.0,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: isActive ? greenBg : greenBg.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            );
-          }),
+        CarouselIndicator(
+          itemCount: widget.restaurants.length,
+          currentIndex: _currentIndex,
+          activeColor: greenBg,
         ),
       ],
     );

@@ -5,8 +5,9 @@ import '../widgets/restaurant_card.dart';
 import '../widgets/review_carousel.dart';
 import 'package:provider/provider.dart';
 import '../providers/home_provider.dart';
-import 'settings_menu_screen.dart';
+import '../widgets/custom_app_header.dart';
 import 'map/map_screen.dart';
+import '../widgets/carousel_indicator.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,51 +21,9 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: creamWhite,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 15,
-            left: 16,
-            right: 16,
-            bottom: 8,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MapScreen()),
-                  );
-                },
-                child: SvgPicture.asset(
-                  'assets/media/4f8e9a_asset_30.svg',
-                  height: 28,
-                  colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
-                ),
-              ),
-              SvgPicture.asset(
-                'assets/media/a12df1_asset_53.svg', // Logo BUCO con ubicación
-                height: 50,
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen(userName: 'Andrés Velasco')),
-                  );
-                },
-                child: SvgPicture.asset(
-                  'assets/media/3ff13c_menu_icon.svg',
-                  width: 22,
-                  colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(80),
+        child: CustomAppHeader(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 120),
@@ -83,7 +42,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            _buildPaginationDots(greenBg),
+            CarouselIndicator(itemCount: 9, currentIndex: -1, activeColor: greenBg),
             const SizedBox(height: 16),
             
             _CategoryCarousel(),
@@ -106,8 +65,6 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const _MostLovedCarousel(),
-            const SizedBox(height: 16),
-            _buildPaginationDots(greenBg),
             const SizedBox(height: 24),
 
             // Tus Favoritos
@@ -158,7 +115,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _buildPaginationDots(Colors.white),
+                  CarouselIndicator(itemCount: 9, currentIndex: -1, activeColor: Colors.white),
                 ],
               ),
             ),
@@ -197,7 +154,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // Puntitos de paginación para Descubre
-            _buildPaginationDots(greenBg),
+            CarouselIndicator(itemCount: 9, currentIndex: -1, activeColor: greenBg),
             const SizedBox(height: 32),
 
             // Review final
@@ -247,23 +204,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPaginationDots(Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(9, (index) {
-        bool isEdge = index == 0 || index == 8;
-        return Container(
-          width: isEdge ? 15.0 : 30.0,
-          height: 4.0,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        );
-      }),
-    );
-  }
+
 }
 
 class _CategoryCarousel extends StatefulWidget {
@@ -451,45 +392,54 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _startTimer();
+  }
+
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0; 
+      // Avoid division by zero
+      if (cardWidthWithSpacing > 0) {
+        int newIndex = (_scrollController.offset / cardWidthWithSpacing).round();
+        final restaurantsCount = context.read<HomeProvider>().mostLovedRestaurants.length;
+        int totalColumns = (restaurantsCount / 2).ceil();
+        
+        if (newIndex >= totalColumns) newIndex = totalColumns - 1;
+        if (newIndex < 0) newIndex = 0;
+        
+        if (newIndex != _currentIndex) {
+          setState(() {
+            _currentIndex = newIndex;
+          });
+        }
+      }
+    }
   }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       if (_scrollController.hasClients) {
-        // We will fetch length directly from context using read inside build, but timer runs asynchronously
-        // It's safer to access it by checking length in state, but context.read is ok here.
         final restaurantsCount = context.read<HomeProvider>().mostLovedRestaurants.length;
+        int totalColumns = (restaurantsCount / 2).ceil();
         
         double maxScroll = _scrollController.position.maxScrollExtent;
         double currentScroll = _scrollController.position.pixels;
         double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0; 
         double nextScroll = currentScroll + cardWidthWithSpacing;
         
-        if (nextScroll > maxScroll) {
-          nextScroll = 0;
-          _currentIndex = 0;
+        if (nextScroll > maxScroll || _currentIndex >= totalColumns - 1) {
           _scrollController.animateTo(
             0,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
         } else {
-          if (_currentIndex < restaurantsCount - 1) {
-            _currentIndex++;
-            _scrollController.animateTo(
-              nextScroll,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-          } else {
-            _scrollController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-            );
-            _currentIndex = 0;
-          }
+          _scrollController.animateTo(
+            nextScroll,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
         }
       }
     });
@@ -498,37 +448,46 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
   @override
   void dispose() {
     _timer?.cancel();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    const Color greenBg = Color(0xFF2E563B);
     final restaurants = context.watch<HomeProvider>().mostLovedRestaurants;
+    int totalColumns = (restaurants.length / 2).ceil();
 
-    return SizedBox(
-      height: 440, // 2 filas de tarjetas + espaciado
-      child: GridView.builder(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: restaurants.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 tarjetas de alto
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 16.0,
-          childAspectRatio: 1.1, // Ajuste para que las tarjetas se vean bien
+    return Column(
+      children: [
+        SizedBox(
+          height: 440, // 2 filas de tarjetas + espaciado
+          child: GridView.builder(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: restaurants.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // 2 tarjetas de alto
+              mainAxisSpacing: 16.0,
+              crossAxisSpacing: 16.0,
+              childAspectRatio: 1.1, // Ajuste para que las tarjetas se vean bien
+            ),
+            itemBuilder: (context, index) {
+              final rest = restaurants[index];
+              return RestaurantCard(
+                name: rest['name'],
+                type: rest['type'],
+                rating: rest['rating'],
+                imageUrl: rest['imageUrl'],
+              );
+            },
+          ),
         ),
-        itemBuilder: (context, index) {
-          final rest = restaurants[index];
-          return RestaurantCard(
-            name: rest['name'],
-            type: rest['type'],
-            rating: rest['rating'],
-            imageUrl: rest['imageUrl'],
-          );
-        },
-      ),
+        const SizedBox(height: 16),
+        CarouselIndicator(itemCount: totalColumns, currentIndex: _currentIndex, activeColor: greenBg),
+      ],
     );
   }
 }

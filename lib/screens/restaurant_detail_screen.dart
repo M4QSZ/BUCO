@@ -5,6 +5,11 @@ import '../main_layout.dart';
 import 'package:provider/provider.dart';
 import '../providers/restaurant_provider.dart';
 import '../providers/user_provider.dart';
+import '../widgets/carousel_indicator.dart';
+
+import 'restaurant_detail/restaurant_header_image.dart';
+import 'restaurant_detail/restaurant_info_card.dart';
+import 'restaurant_detail/restaurant_leave_review_section.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   const RestaurantDetailScreen({super.key});
@@ -15,9 +20,6 @@ class RestaurantDetailScreen extends StatefulWidget {
 
 class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   bool isDetailsSelected = true;
-  double _selectedStars = 5.0;
-  final TextEditingController _commentController = TextEditingController();
-
   late PageController _pageController;
   Timer? _timer;
   int _currentCommentPage = 0;
@@ -45,7 +47,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
-    _commentController.dispose();
     super.dispose();
   }
 
@@ -61,50 +62,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     final userProvider = context.read<UserProvider>();
     final reviews = restaurantProvider.restaurantReviews;
 
-    Widget buildInteractiveStar(int index) {
-      double starValue = index + 1.0;
-      return GestureDetector(
-        onTapDown: (details) {
-          if (details.localPosition.dx < 16) {
-            setState(() {
-              _selectedStars = index + 0.5;
-            });
-          } else {
-            setState(() {
-              _selectedStars = index + 1.0;
-            });
-          }
-        },
-        child: SizedBox(
-          width: 32,
-          height: 32,
-          child: Stack(
-            children: [
-              SvgPicture.asset(
-                'assets/media/5968f1_star_custom.svg',
-                height: 32,
-                width: 32,
-                colorFilter: ColorFilter.mode(creamWhite.withValues(alpha: 0.3), BlendMode.srcIn),
-              ),
-              if (_selectedStars > index)
-                ClipRect(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: _selectedStars >= starValue ? 1.0 : 0.5,
-                    child: SvgPicture.asset(
-                      'assets/media/5968f1_star_custom.svg',
-                      height: 32,
-                      width: 32,
-                      colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: creamWhite,
       body: Stack(
@@ -115,160 +72,11 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Cabecera Naranja con logo gigante
-                SizedBox(
-                  height: 400,
-                  child: Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      Container(
-                        height: 300,
-                        decoration: const BoxDecoration(
-                          color: primaryOrange,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(150),
-                            bottomRight: Radius.circular(150),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).padding.top + 15,
-                          left: 16,
-                          right: 16,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: SvgPicture.asset(
-                                'assets/media/ee45a3_back_arrow.svg',
-                                height: 28,
-                                colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
-                              ),
-                            ),
-                            SvgPicture.asset(
-                              'assets/media/4e9d05_asset_52.svg',
-                              height: 50,
-                              colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                // Podrías navegar a SettingsMenuScreen aquí si lo deseas
-                              },
-                              child: SvgPicture.asset(
-                                'assets/media/3ff13c_menu_icon.svg', 
-                                width: 22, 
-                                colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Logo de Burger King gigante
-                      Positioned(
-                        bottom: 0,
-                        child: SizedBox(
-                          width: 200,
-                          height: 200,
-                          child: SvgPicture.asset(
-                            'assets/media/f1a2d7_burger_kin.svg',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const RestaurantHeaderImage(),
                 const SizedBox(height: 20),
                 
                 // Fila de Info (Nombre, Calificación, Icono User)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: primaryBrown,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'BURGER\nKING',
-                                      style: TextStyle(
-                                        fontFamily: 'Bernoru',
-                                        color: creamWhite,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 20,
-                                        height: 1.1,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    const Text(
-                                      'Hamburguesas - Comida rápida',
-                                      style: TextStyle(
-                                        color: creamWhite,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SvgPicture.asset('assets/media/8d6e5a_fav_sin_marcar.svg', width: 28, colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          height: 105,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF2BF4A),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              '4.5',
-                              style: TextStyle(
-                                fontFamily: 'Bernoru',
-                                color: creamWhite,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 28,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 4,
-                        child: Container(
-                          height: 105,
-                          decoration: BoxDecoration(
-                            color: primaryBrown,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset('assets/media/b5e1db_perfil.svg', width: 32, colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const RestaurantInfoCard(),
                 const SizedBox(height: 20),
 
                 // Fila de Botones (Detalles, Reviews, Menu, Phone)
@@ -339,8 +147,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-
 
                 if (isDetailsSelected) ...[
                   // Texto descriptivo
@@ -434,20 +240,10 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   const SizedBox(height: 10),
                   
                   // Paginación (línea verde)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(8, (index) {
-                      bool isEdge = index == 0 || index == 7;
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: isEdge ? 15.0 : 30.0,
-                        height: 4.0,
-                        decoration: BoxDecoration(
-                          color: _currentCommentPage == index ? greenBg : greenBg.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      );
-                    }),
+                  CarouselIndicator(
+                    itemCount: 8,
+                    currentIndex: _currentCommentPage,
+                    activeColor: greenBg,
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -565,109 +361,27 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                 const SizedBox(height: 20),
 
                 // Separador Punteado Mejorado (Dashes)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(8, (index) {
-                    bool isEdge = index == 0 || index == 7;
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: isEdge ? 15.0 : 30.0,
-                      height: 4.0,
-                      decoration: BoxDecoration(
-                        color: greenBg.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    );
-                  }),
+                CarouselIndicator(
+                  itemCount: 8,
+                  currentIndex: _currentCommentPage,
+                  activeColor: greenBg.withValues(alpha: 0.8),
                 ),
                 const SizedBox(height: 20),
 
                 
                 // Sección DEJA TU OPINIÓN (Siempre visible)
-                Container(
-                  color: greenBg,
-                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 24),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'DEJA TU OPINIÓN',
-                        style: TextStyle(
-                          fontFamily: 'Bernoru',
-                          color: creamWhite,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(5, (index) {
-                          return Row(
-                            children: [
-                              buildInteractiveStar(index),
-                              if (index < 4) const SizedBox(width: 8),
-                            ],
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: creamWhite,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: TextField(
-                          controller: _commentController,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(16),
-                            hintText: 'Escribe tu comentario aquí...',
-                            hintStyle: TextStyle(
-                              color: Colors.grey,
-                              fontFamily: 'Bernoru',
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_selectedStars > 0 && _commentController.text.isNotEmpty) {
-                            restaurantProvider.addReview(
-                              userProvider.userName,
-                              _commentController.text,
-                              _selectedStars,
-                            );
-                            setState(() {
-                              _selectedStars = 5.0;
-                              _commentController.clear();
-                              isDetailsSelected = false; // Cambiar a la pestaña de reviews
-                            });
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryOrange,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                        ),
-                        child: const Text(
-                          'ENVIAR',
-                          style: TextStyle(
-                            fontFamily: 'Bernoru',
-                            color: creamWhite,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                RestaurantLeaveReviewSection(
+                  initialRating: 5.0,
+                  onSubmit: (rating, comment) {
+                    restaurantProvider.addReview(
+                      userProvider.userName,
+                      comment,
+                      rating,
+                    );
+                    setState(() {
+                      isDetailsSelected = false; // Cambiar a la pestaña de reviews
+                    });
+                  },
                 ),
                 const SizedBox(height: 40),
               ],
