@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import '../widgets/restaurant_card.dart';
+import '../widgets/auto_scroll_restaurant_carousel.dart';
 import 'settings_menu_screen.dart';
-import '../services/auth_service.dart';
+import '../providers/user_provider.dart';
+import '../providers/restaurant_provider.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -13,8 +16,6 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  String _userName = 'Andrés Velasco';
-  String _userDesc = '';
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,8 @@ class _AccountScreenState extends State<AccountScreen> {
     const Color primaryOrange = Color(0xFFF0531C);
     const Color creamWhite = Color(0xFFF8EDDB);
     const Color greenBg = Color(0xFF2E563B);
+
+    final userProvider = context.watch<UserProvider>();
 
     return Scaffold(
       backgroundColor: greenBg, // Fondo verde debajo
@@ -63,10 +66,10 @@ class _AccountScreenState extends State<AccountScreen> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => SettingsMenuScreen(userName: _userName)),
-                                );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => SettingsMenuScreen(userName: userProvider.userName)),
+                                  );
                               },
                                child: SvgPicture.asset(
                                  'assets/media/3ff13c_menu_icon.svg',
@@ -99,19 +102,19 @@ class _AccountScreenState extends State<AccountScreen> {
                                         const SizedBox(height: 10),
                                         Row(
                                           children: [
-                                            Flexible(
-                                              child: Text(
-                                                _userName,
-                                                style: const TextStyle(
-                                                  color: primaryBrown,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 22,
-                                                  height: 1.0,
+                                              Flexible(
+                                                child: Text(
+                                                  userProvider.userName,
+                                                  style: const TextStyle(
+                                                    color: primaryBrown,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 22,
+                                                    height: 1.0,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                            ),
                                             const SizedBox(width: 4),
                                             GestureDetector(
                                               onTap: () {
@@ -125,15 +128,15 @@ class _AccountScreenState extends State<AccountScreen> {
                                             ),
                                           ],
                                         ),
-                                        Text(
-                                          AuthService().getCurrentUser()?['email'] ?? '¡¡hola!!',
-                                          style: const TextStyle(
-                                            color: primaryBrown,
-                                            fontSize: 16,
+                                          Text(
+                                            userProvider.email,
+                                            style: const TextStyle(
+                                              color: primaryBrown,
+                                              fontSize: 16,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -168,9 +171,9 @@ class _AccountScreenState extends State<AccountScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Expanded(child: _buildStat('0', 'CALIFICACIONES')),
-                          Expanded(child: _buildStat('0', 'FAVORITOS')),
-                          Expanded(child: _buildStat('0', 'RESTAURANTES')),
+                          Expanded(child: _buildStat(userProvider.reviewsCount.toString(), 'CALIFICACIONES')),
+                          Expanded(child: _buildStat(userProvider.favoritesCount.toString(), 'FAVORITOS')),
+                          Expanded(child: _buildStat(userProvider.restaurantsCount.toString(), 'RESTAURANTES')),
                         ],
                       ),
                     ],
@@ -206,7 +209,13 @@ class _AccountScreenState extends State<AccountScreen> {
                     colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
                   ),
                   const SizedBox(height: 15),
-                  const _RestaurantCardsCarousel(),
+                  Consumer<RestaurantProvider>(
+                    builder: (context, restaurantProvider, child) {
+                      return AutoScrollRestaurantCarousel(
+                        restaurants: restaurantProvider.favoriteRestaurants,
+                      );
+                    },
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -255,8 +264,9 @@ class _AccountScreenState extends State<AccountScreen> {
     const Color greenBg = Color(0xFF2E563B);
     const Color primaryOrange = Color(0xFFF0531C);
 
-    final TextEditingController nameController = TextEditingController(text: _userName);
-    final TextEditingController descController = TextEditingController(text: _userDesc);
+    final userProvider = context.read<UserProvider>();
+    final TextEditingController nameController = TextEditingController(text: userProvider.userName);
+    final TextEditingController descController = TextEditingController(text: userProvider.userDesc);
 
     showModalBottomSheet(
       context: context,
@@ -365,10 +375,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      _userName = nameController.text;
-                      _userDesc = descController.text;
-                    });
+                    userProvider.updateProfile(nameController.text, descController.text);
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
@@ -406,46 +413,6 @@ class _ProfileReviewCarousel extends StatefulWidget {
 class _ProfileReviewCarouselState extends State<_ProfileReviewCarousel> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
-
-  final List<Map<String, String>> reviews = [
-    {
-      'text': '“Muy buena comida!!”',
-      'icon': 'assets/media/c75819_mcdonalds.svg', // Changed to McDonald's
-    },
-    {
-      'text': '“Excelente servicio!!”',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg', 
-    },
-    {
-      'text': '“Llegó súper rápido!”',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
-    },
-    {
-      'text': '“La mejor hamburguesa”',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
-    },
-    {
-      'text': '“Siempre calientito”',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
-    },
-    {
-      'text': '“Muy amables al entregar”',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
-    },
-    {
-      'text': '“Todo perfecto, gracias”',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
-    },
-    {
-      'text': '“Súper recomendado”',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
-    },
-    {
-      'text': '“Buenísimo el sabor”',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
-    },
-  ];
-
   Timer? _timer;
 
   @override
@@ -456,6 +423,8 @@ class _ProfileReviewCarouselState extends State<_ProfileReviewCarousel> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
+      final reviews = context.read<UserProvider>().userReviews;
+      if (reviews.isEmpty) return;
       if (_currentIndex < reviews.length - 1) {
         _currentIndex++;
       } else {
@@ -483,6 +452,9 @@ class _ProfileReviewCarouselState extends State<_ProfileReviewCarousel> {
   Widget build(BuildContext context) {
     const Color primaryBrown = Color(0xFF662715);
     const Color creamWhite = Color(0xFFF8EDDB);
+
+    final reviews = context.watch<UserProvider>().userReviews;
+    if (reviews.isEmpty) return const SizedBox.shrink();
 
     return Column(
       children: [
@@ -543,187 +515,6 @@ class _ProfileReviewCarouselState extends State<_ProfileReviewCarousel> {
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            );
-          }),
-        ),
-      ],
-    );
-  }
-}
-
-class _RestaurantCardsCarousel extends StatefulWidget {
-  const _RestaurantCardsCarousel({Key? key}) : super(key: key);
-
-  @override
-  State<_RestaurantCardsCarousel> createState() => _RestaurantCardsCarouselState();
-}
-
-class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
-  final ScrollController _scrollController = ScrollController();
-  int _currentIndex = 0;
-  bool _isUserScrolling = false;
-
-  final List<Map<String, dynamic>> restaurants = [
-    {
-      'name': 'BURGER KING',
-      'rating': 4.5,
-      'imageUrl': 'assets/media/f1a2d7_burger_kin.svg',
-      'cardColor': Colors.white,
-    },
-    {
-      'name': "McDonald's",
-      'rating': 4.0,
-      'imageUrl': 'assets/media/c75819_mcdonalds.svg',
-      'cardColor': const Color(0xFFDA291C),
-    },
-    {
-      'name': "Carl's Jr",
-      'rating': 4.3,
-      'imageUrl': 'assets/media/logo_carlsjr.png',
-      'cardColor': const Color(0xFFE21A22),
-    },
-    {
-      'name': "Little Caesars",
-      'rating': 3.9,
-      'imageUrl': 'assets/media/logo_littlecaesars.png',
-      'cardColor': const Color(0xFFFF6600),
-    },
-    {
-      'name': "Domino's Pizza",
-      'rating': 4.2,
-      'imageUrl': 'assets/media/logo_dominos.png',
-      'cardColor': const Color(0xFF0055A5),
-    },
-    {
-      'name': "KFC",
-      'rating': 4.1,
-      'imageUrl': 'assets/media/logo_kfc.svg',
-      'cardColor': const Color(0xFFE4002B),
-    },
-    {
-      'name': "Subway",
-      'rating': 4.0,
-      'imageUrl': 'assets/media/logo_subway.png',
-      'cardColor': const Color(0xFF008938),
-    },
-    {
-      'name': "Pío Pío",
-      'rating': 4.6,
-      'imageUrl': 'assets/media/logo_piopio.png',
-      'cardColor': const Color(0xFFF0531C), // Naranja Pío Pío
-    },
-    {
-      'name': "Don Lee",
-      'rating': 4.4,
-      'imageUrl': 'assets/media/logo_donlee.png',
-      'cardColor': const Color(0xFFC00A27),
-    },
-  ];
-
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-      if (_scrollController.hasClients && !_isUserScrolling) {
-        double maxScroll = _scrollController.position.maxScrollExtent;
-        double currentScroll = _scrollController.position.pixels;
-        double cardWidthWithSpacing = 170.0 + 24.0; 
-        double nextScroll = currentScroll + cardWidthWithSpacing;
-        
-        if (nextScroll > maxScroll) {
-          nextScroll = 0;
-          _scrollController.animateTo(
-            0,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          );
-        } else {
-          _scrollController.animateTo(
-            nextScroll,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-          );
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const Color greenBg = Color(0xFF2E563B);
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 260,
-          child: Listener(
-            onPointerDown: (_) => _isUserScrolling = true,
-            onPointerUp: (_) => _isUserScrolling = false,
-            onPointerCancel: (_) => _isUserScrolling = false,
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification notification) {
-                if (notification is ScrollUpdateNotification) {
-                  int newIndex = (_scrollController.offset / (170.0 + 24.0)).round();
-                  if (newIndex < 0) newIndex = 0;
-                  if (newIndex >= restaurants.length) newIndex = restaurants.length - 1;
-                  
-                  if (newIndex != _currentIndex) {
-                    setState(() {
-                      _currentIndex = newIndex;
-                    });
-                  }
-                }
-                return true;
-              },
-              child: ListView.builder(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 45),
-                itemCount: restaurants.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: index == restaurants.length - 1 ? 0 : 24.0),
-                    child: RestaurantCard(
-                      name: restaurants[index]['name'],
-                      type: '',
-                      rating: restaurants[index]['rating'],
-                      isSavedStyle: true,
-                      imageUrl: restaurants[index]['imageUrl'],
-                      cardColor: restaurants[index]['cardColor'],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(restaurants.length, (index) {
-            bool isEdge = index == 0 || index == restaurants.length - 1;
-            bool isActive = index == _currentIndex;
-            return Container(
-              width: isActive ? 35.0 : (isEdge ? 15.0 : 30.0),
-              height: 4.0,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: isActive ? greenBg : greenBg.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             );

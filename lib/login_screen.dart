@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'main_layout.dart';
-import 'services/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,44 +16,26 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
-  bool _isLoading = false;
 
   void _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, rellena todos los campos.')),
+    
+    final authProvider = context.read<AuthProvider>();
+    
+    final success = await authProvider.login(email, password);
+    
+    if (!mounted) return;
+    
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainLayout()),
       );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await _authService.signInWithEmailPassword(email, password);
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainLayout()),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
     }
   }
 
@@ -216,35 +199,39 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: SizedBox(
                             width: w * 0.376, // 443px out of 1179
                             height: h * 0.058, // 149px out of 2556
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _login,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: greenBg,
-                                padding: EdgeInsets.symmetric(horizontal: w * 0.02),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(color: creamWhite, strokeWidth: 2),
-                                    )
-                                  : FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        'CONTINUAR',
-                                        style: TextStyle(
-                                          fontFamily: 'Bernoru',
-                                          fontSize: w * 0.03, // 32px out of 1179
-                                          fontWeight: FontWeight.w800,
-                                          color: creamWhite,
-                                          letterSpacing: 1.0,
-                                        ),
-                                      ),
+                            child: Consumer<AuthProvider>(
+                              builder: (context, auth, child) {
+                                return ElevatedButton(
+                                  onPressed: auth.isLoading ? null : _login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: greenBg,
+                                    padding: EdgeInsets.symmetric(horizontal: w * 0.02),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
+                                    elevation: 0,
+                                  ),
+                                  child: auth.isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(color: creamWhite, strokeWidth: 2),
+                                        )
+                                      : FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            'CONTINUAR',
+                                            style: TextStyle(
+                                              fontFamily: 'Bernoru',
+                                              fontSize: w * 0.03, // 32px out of 1179
+                                              fontWeight: FontWeight.w800,
+                                              color: creamWhite,
+                                              letterSpacing: 1.0,
+                                            ),
+                                          ),
+                                        ),
+                                );
+                              }
                             ),
                           ),
                         ),

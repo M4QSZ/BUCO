@@ -4,6 +4,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/restaurant_card.dart';
 import 'settings_menu_screen.dart';
 import 'map/map_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/search_provider.dart';
+import '../providers/restaurant_provider.dart';
+import '../providers/user_provider.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -330,6 +334,10 @@ class _SearchScreenState extends State<SearchScreen> {
     const Color beigeColor = Color(0xFFDCC8B2);
     const Color greenBg = Color(0xFF2E563B);
 
+    final userProvider = context.watch<UserProvider>();
+    final searchProvider = context.watch<SearchProvider>();
+    final restaurantProvider = context.watch<RestaurantProvider>();
+
     return Scaffold(
       backgroundColor: creamWhite,
       appBar: PreferredSize(
@@ -365,7 +373,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen(userName: 'Andrés Velasco')),
+                    MaterialPageRoute(builder: (context) => SettingsMenuScreen(userName: userProvider.userName)),
                   );
                 },
                 child: SvgPicture.asset(
@@ -447,14 +455,14 @@ class _SearchScreenState extends State<SearchScreen> {
             
             // Search History
             const Divider(height: 2, color: primaryOrange, thickness: 2),
-            _buildSearchHistoryItem('Burger', primaryBrown),
-            const Divider(height: 2, color: primaryOrange, thickness: 2),
-            _buildSearchHistoryItem('Mac donal', primaryBrown),
-            const Divider(height: 2, color: primaryOrange, thickness: 2),
-            _buildSearchHistoryItem('Pasta', primaryBrown),
-            const Divider(height: 2, color: primaryOrange, thickness: 2),
-            _buildSearchHistoryItem('Sushi', primaryBrown),
-            const Divider(height: 2, color: primaryOrange, thickness: 2),
+            ...searchProvider.searchHistory.map((item) {
+              return Column(
+                children: [
+                  _buildSearchHistoryItem(item, primaryBrown),
+                  const Divider(height: 2, color: primaryOrange, thickness: 2),
+                ],
+              );
+            }).toList(),
             const SizedBox(height: 24),
 
             // TUS FAVORITOS
@@ -503,25 +511,20 @@ class _SearchScreenState extends State<SearchScreen> {
               child: SizedBox(
                 height: 200,
                 child: Row(
-                  children: const [
-                    Expanded(
-                      child: RestaurantCard(
-                        name: 'LUCCA', 
-                        type: 'Italiana', 
-                        rating: 4.5,
-                        imageUrl: 'assets/media/27281c_asset_35.png',
+                  children: restaurantProvider.favoriteRestaurants.take(2).map((rest) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: RestaurantCard(
+                          name: rest['name'], 
+                          type: rest['type'] ?? '', 
+                          rating: rest['rating'],
+                          imageUrl: rest['imageUrl'],
+                          cardColor: rest['cardColor'] ?? Colors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: RestaurantCard(
-                        name: 'GIORGIO\'S', 
-                        type: 'Italiana', 
-                        rating: 4.0,
-                        imageUrl: 'assets/media/39d88b_asset_34.png',
-                      ),
-                    ),
-                  ],
+                    );
+                  }).toList(),
                 ),
               ),
             ),
@@ -545,19 +548,14 @@ class _SearchScreenState extends State<SearchScreen> {
               color: primaryOrange,
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
-                children: [
-                  Expanded(
-                    child: Image.asset('assets/media/300f20_asset_36.png', fit: BoxFit.contain),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Image.asset('assets/media/8bc92b_asset_37.png', fit: BoxFit.contain),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Image.asset('assets/media/7300fc_asset_38.png', fit: BoxFit.contain),
-                  ),
-                ],
+                children: searchProvider.promos.map((promo) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Image.asset(promo, fit: BoxFit.contain),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(height: 16),
@@ -596,25 +594,19 @@ class _SearchScreenState extends State<SearchScreen> {
               child: SizedBox(
                 height: 200,
                 child: Row(
-                  children: const [
-                    Expanded(
-                      child: RestaurantCard(
-                        name: 'LUCCA', 
-                        type: 'Italiana', 
-                        rating: 4.5,
-                        imageUrl: 'assets/media/27281c_asset_35.png',
+                  children: restaurantProvider.discoverRestaurants.take(2).map((rest) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: RestaurantCard(
+                          name: rest['name'], 
+                          type: rest['type'] ?? '', 
+                          rating: rest['rating'],
+                          imageUrl: rest['imageUrl'],
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: RestaurantCard(
-                        name: 'GIORGIO\'S', 
-                        type: 'Italiana', 
-                        rating: 4.0,
-                        imageUrl: 'assets/media/39d88b_asset_34.png',
-                      ),
-                    ),
-                  ],
+                    );
+                  }).toList(),
                 ),
               ),
             ),

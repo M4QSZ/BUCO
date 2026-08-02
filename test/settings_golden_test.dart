@@ -9,7 +9,9 @@ void main() {
 
     await tester.pumpWidget(const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SettingsMenuScreen(),
+      home: Scaffold(
+        body: SettingsMenuScreen(userName: 'Test User'),
+      ),
     ));
 
     await tester.pumpAndSettle();

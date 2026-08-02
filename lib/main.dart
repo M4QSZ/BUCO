@@ -2,12 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:device_preview/device_preview.dart';
 import 'splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
+import 'services/repositories/mock_auth_repository.dart';
+import 'providers/home_provider.dart';
+import 'providers/user_provider.dart';
+import 'providers/restaurant_provider.dart';
+import 'providers/search_provider.dart';
 
 void main() {
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode && defaultTargetPlatform == TargetPlatform.windows,
-      builder: (context) => const MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider(authRepository: MockAuthRepository())),
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+      ],
+      child: DevicePreview(
+        enabled: !kReleaseMode && defaultTargetPlatform == TargetPlatform.windows,
+        builder: (context) => const MyApp(),
+      ),
     ),
   );
 }

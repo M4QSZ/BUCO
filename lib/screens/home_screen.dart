@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/restaurant_card.dart';
 import '../widgets/review_carousel.dart';
+import 'package:provider/provider.dart';
+import '../providers/home_provider.dart';
 import 'settings_menu_screen.dart';
 import 'map/map_screen.dart';
 
@@ -275,21 +277,6 @@ class _CategoryCarouselState extends State<_CategoryCarousel> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
 
-  final List<Map<String, String>> categories = [
-    {'title': 'PASTAS', 'image': 'assets/media/pasta-pomodoro.png'},
-    {'title': 'SUSHI', 'image': 'assets/media/sushi-california.png'},
-    {'title': 'POSTRES', 'image': 'assets/media/cupcake.png'},
-    {'title': 'PIZZAS', 'image': 'assets/media/dinamica-rebanada-pizza-pepperoni-salpicaduras-salsa.png'},
-    {'title': 'BURGER', 'image': 'assets/media/hamburguesa.png'},
-    {'title': 'ENSALADA', 'image': 'assets/media/ensalada.png'},
-    {'title': 'CARNES', 'image': 'assets/media/carne-ribeye.png'},
-    {'title': 'POLLO', 'image': 'assets/media/pollo-frito.png'},
-    {'title': 'POKE', 'image': 'assets/media/poke-bowl.png'},
-    {'title': 'CAFÉ', 'image': 'assets/media/cafe-frio.png'},
-    {'title': 'ALITAS', 'image': 'assets/media/alitas-buffalo.png'},
-    {'title': 'DONAS', 'image': 'assets/media/dona.png'},
-  ];
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -301,6 +288,7 @@ class _CategoryCarouselState extends State<_CategoryCarousel> {
     const Color creamWhite = Color(0xFFF8EDDB);
     const Color greenBg = Color(0xFF2E563B);
     
+    final categories = context.watch<HomeProvider>().categories;
     // Calcula cuántas páginas hay (4 ítems por página)
     int pageCount = (categories.length / 4).ceil();
 
@@ -460,58 +448,6 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
   int _currentIndex = 0;
   Timer? _timer;
 
-  final List<Map<String, dynamic>> restaurants = [
-    {
-      'name': 'LUCCA', 
-      'type': 'Italiana', 
-      'rating': 4.5,
-      'imageUrl': 'assets/media/27281c_asset_35.png',
-    },
-    {
-      'name': 'GIORGIO\'S', 
-      'type': 'Italiana', 
-      'rating': 4.0,
-      'imageUrl': 'assets/media/39d88b_asset_34.png',
-    },
-    {
-      'name': 'NAPOLI', 
-      'type': 'Pizzas', 
-      'rating': 4.8,
-      'imageUrl': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop',
-    },
-    {
-      'name': 'LOS AÑOS LOCOS', 
-      'type': 'Carnes', 
-      'rating': 4.7,
-      'imageUrl': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
-    },
-    // Duplicados
-    {
-      'name': 'LUCCA', 
-      'type': 'Italiana', 
-      'rating': 4.5,
-      'imageUrl': 'assets/media/27281c_asset_35.png',
-    },
-    {
-      'name': 'GIORGIO\'S', 
-      'type': 'Italiana', 
-      'rating': 4.0,
-      'imageUrl': 'assets/media/39d88b_asset_34.png',
-    },
-    {
-      'name': 'NAPOLI', 
-      'type': 'Pizzas', 
-      'rating': 4.8,
-      'imageUrl': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop',
-    },
-    {
-      'name': 'LOS AÑOS LOCOS', 
-      'type': 'Carnes', 
-      'rating': 4.7,
-      'imageUrl': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -521,14 +457,12 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       if (_scrollController.hasClients) {
+        // We will fetch length directly from context using read inside build, but timer runs asynchronously
+        // It's safer to access it by checking length in state, but context.read is ok here.
+        final restaurantsCount = context.read<HomeProvider>().mostLovedRestaurants.length;
+        
         double maxScroll = _scrollController.position.maxScrollExtent;
         double currentScroll = _scrollController.position.pixels;
-        // MediaQuery para obtener el ancho
-        // itemWidth = MediaQuery.of(context).size.width / 2 - 24; (aproximadamente)
-        // separator = 16
-        // nextScroll = currentScroll + cardWidthWithSpacing;
-        // Pero sin context seguro en el timer (aunque se puede usar), mejor calculamos genéricamente
-        // o animamos de a poco
         double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0; 
         double nextScroll = currentScroll + cardWidthWithSpacing;
         
@@ -541,7 +475,7 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
             curve: Curves.easeInOut,
           );
         } else {
-          if (_currentIndex < restaurants.length - 1) {
+          if (_currentIndex < restaurantsCount - 1) {
             _currentIndex++;
             _scrollController.animateTo(
               nextScroll,
@@ -570,6 +504,8 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final restaurants = context.watch<HomeProvider>().mostLovedRestaurants;
+
     return SizedBox(
       height: 440, // 2 filas de tarjetas + espaciado
       child: GridView.builder(

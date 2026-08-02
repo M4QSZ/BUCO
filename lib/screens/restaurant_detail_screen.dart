@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../main_layout.dart';
+import 'package:provider/provider.dart';
+import '../providers/restaurant_provider.dart';
+import '../providers/user_provider.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   const RestaurantDetailScreen({super.key});
@@ -14,16 +17,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   bool isDetailsSelected = true;
   double _selectedStars = 5.0;
   final TextEditingController _commentController = TextEditingController();
-  final List<Map<String, String>> _reviews = [
-    {'name': 'Andrés Velasco', 'text': '"Muy buena comida !!"', 'rating': '4.5'},
-    {'name': 'María López', 'text': '"Excelente servicio y rapidez"', 'rating': '5.0'},
-    {'name': 'Carlos Díaz', 'text': '"Recomendado al 100%"', 'rating': '4.8'},
-    {'name': 'Ana Silva', 'text': '"El mejor lugar de la ciudad"', 'rating': '5.0'},
-    {'name': 'Luis Gómez', 'text': '"Sabor increíble"', 'rating': '4.7'},
-    {'name': 'Sofía Ortiz', 'text': '"Volveré pronto"', 'rating': '4.9'},
-    {'name': 'Diego Cruz', 'text': '"Buena atención"', 'rating': '4.2'},
-    {'name': 'Elena Paz', 'text': '"Me encantó el ambiente"', 'rating': '4.6'},
-  ];
 
   late PageController _pageController;
   Timer? _timer;
@@ -63,6 +56,10 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     const Color creamWhite = Color(0xFFF8EDDB);
     const Color beigeColor = Color(0xFFDCC8B2);
     const Color greenBg = Color(0xFF2E563B);
+
+    final restaurantProvider = context.watch<RestaurantProvider>();
+    final userProvider = context.read<UserProvider>();
+    final reviews = restaurantProvider.restaurantReviews;
 
     Widget buildInteractiveStar(int index) {
       double starValue = index + 1.0;
@@ -371,7 +368,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                           _currentCommentPage = page;
                         });
                       },
-                      children: _reviews.map((review) => Padding(
+                      children: reviews.map((review) => Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 30.0),
                         child: Column(
                           children: [
@@ -640,12 +637,12 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                       ElevatedButton(
                         onPressed: () {
                           if (_selectedStars > 0 && _commentController.text.isNotEmpty) {
+                            restaurantProvider.addReview(
+                              userProvider.userName,
+                              _commentController.text,
+                              _selectedStars,
+                            );
                             setState(() {
-                              _reviews.insert(0, {
-                                'name': 'Tú',
-                                'text': '"${_commentController.text}"',
-                                'rating': _selectedStars.toString(),
-                              });
                               _selectedStars = 5.0;
                               _commentController.clear();
                               isDetailsSelected = false; // Cambiar a la pestaña de reviews

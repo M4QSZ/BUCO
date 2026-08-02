@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
+import 'main_layout.dart';
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -25,8 +27,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register() {
-    // Aquí puedes agregar la lógica para el registro más adelante
+  void _register() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    final authProvider = context.read<AuthProvider>();
+    
+    final success = await authProvider.register(email, password, confirmPassword);
+    
+    if (!mounted) return;
+    
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainLayout()),
+      );
+    } else if (authProvider.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authProvider.errorMessage!)),
+      );
+    }
   }
 
   @override
@@ -101,29 +122,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: SizedBox(
                             width: w * 0.45,
                             height: h * 0.058,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _register,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: greenBg,
-                                padding: EdgeInsets.symmetric(horizontal: w * 0.02),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  'REGISTRAR',
-                                  style: TextStyle(
-                                    fontFamily: 'Bernoru',
-                                    fontSize: w * 0.035,
-                                    fontWeight: FontWeight.w800,
-                                    color: creamWhite,
-                                    letterSpacing: 1.0,
+                            child: Consumer<AuthProvider>(
+                              builder: (context, auth, child) {
+                                return ElevatedButton(
+                                  onPressed: auth.isLoading ? null : _register,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: greenBg,
+                                    padding: EdgeInsets.symmetric(horizontal: w * 0.02),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    elevation: 0,
                                   ),
-                                ),
-                              ),
+                                  child: auth.isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(color: creamWhite, strokeWidth: 2),
+                                        )
+                                      : FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            'REGISTRAR',
+                                            style: TextStyle(
+                                              fontFamily: 'Bernoru',
+                                              fontSize: w * 0.035,
+                                              fontWeight: FontWeight.w800,
+                                              color: creamWhite,
+                                              letterSpacing: 1.0,
+                                            ),
+                                          ),
+                                        ),
+                                );
+                              }
                             ),
                           ),
                         ),
