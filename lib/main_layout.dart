@@ -59,10 +59,10 @@ class _MainLayoutState extends State<MainLayout> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildNavItem('assets/icons/HOME.svg', 0, primaryBrown),
-                  _buildNavItem('assets/icons/SEARCH.svg', 1, primaryBrown),
-                  _buildNavItem('assets/icons/FAV.svg', 2, primaryBrown),
-                  _buildNavItem('assets/icons/PERFIL.svg', 3, primaryBrown),
+                  _buildNavItem('assets/media/80352c_home.svg', 0, primaryBrown),
+                  _buildNavItem('assets/media/e13312_search.svg', 1, primaryBrown),
+                  _buildNavItem('assets/media/59675c_fav.svg', 2, primaryBrown),
+                  _buildNavItem('assets/media/b5e1db_perfil.svg', 3, primaryBrown),
                 ],
               ),
             ),

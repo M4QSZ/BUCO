@@ -77,15 +77,35 @@ class RestaurantCard extends StatelessWidget {
         Positioned(
           top: 50,
           left: -22,
-          child: SizedBox(
+          child: Container(
             width: 140,
             height: 140,
-            child: imageUrl != null && imageUrl!.toLowerCase().endsWith('.svg')
-                ? SvgPicture.asset(
-                    imageUrl!,
-                    fit: BoxFit.contain,
-                  )
-                : null,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: creamWhite, width: 4),
+              color: cardColor ?? Colors.white,
+            ),
+            child: ClipOval(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: imageUrl != null
+                    ? (imageUrl!.toLowerCase().endsWith('.svg')
+                        ? SvgPicture.asset(
+                            imageUrl!,
+                            fit: BoxFit.contain,
+                          )
+                        : (imageUrl!.startsWith('http')
+                            ? Image.network(
+                                imageUrl!,
+                                fit: BoxFit.contain,
+                              )
+                            : Image.asset(
+                                imageUrl!,
+                                fit: BoxFit.contain,
+                              )))
+                    : null,
+              ),
+            ),
           ),
         ),
 
@@ -119,7 +139,7 @@ class RestaurantCard extends StatelessWidget {
           bottom: 14,
           right: 14,
           child: SvgPicture.asset(
-            'assets/icons/FAV SIN MARCAR.svg',
+            'assets/media/8d6e5a_fav_sin_marcar.svg',
             width: 22,
             colorFilter: const ColorFilter.mode(Color(0xFF662715), BlendMode.srcIn),
           ),
@@ -221,7 +241,7 @@ class RestaurantCard extends StatelessWidget {
           bottom: 12,
           right: 12,
           child: SvgPicture.asset(
-            'assets/icons/FAV SIN MARCAR.svg',
+            'assets/media/8d6e5a_fav_sin_marcar.svg',
             width: 24,
             colorFilter: ColorFilter.mode(primaryBrown, BlendMode.srcIn),
           ),

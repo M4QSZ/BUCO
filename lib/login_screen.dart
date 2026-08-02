@@ -2,9 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'main_layout.dart';
+import 'services/auth_service.dart';
+import 'register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  void _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, rellena todos los campos.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.signInWithEmailPassword(email, password);
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainLayout()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +95,7 @@ class LoginScreen extends StatelessWidget {
                         // Logo de BUCO
                         Center(
                           child: SvgPicture.asset(
-                            'assets/icons/Asset 52.svg',
+                            'assets/media/4e9d05_asset_52.svg',
                             height: h * 0.093, // ~237px from 2556 SVG
                             colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                           ),
@@ -50,7 +107,7 @@ class LoginScreen extends StatelessWidget {
                         Row(
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/email_icon.svg', 
+                              'assets/media/a3d808_email_icon.svg', 
                               width: w * 0.045, 
                               colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn)
                             ),
@@ -67,12 +124,12 @@ class LoginScreen extends StatelessWidget {
                         ),
                         SizedBox(height: h * 0.005),
                         Container(
-                          height: h * 0.045, // 110px in SVG
                           decoration: BoxDecoration(
                             color: creamWhite,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: TextField(
+                            controller: _emailController,
                             style: GoogleFonts.montserrat(
                               color: primaryBrown,
                               fontWeight: FontWeight.w600,
@@ -80,7 +137,8 @@ class LoginScreen extends StatelessWidget {
                             ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: h * 0.012),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: h * 0.015),
+                              isDense: true,
                             ),
                           ),
                         ),
@@ -91,7 +149,7 @@ class LoginScreen extends StatelessWidget {
                         Row(
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/CONTRASEÑA.svg', 
+                              'assets/media/772100_contrase_a.svg', 
                               width: w * 0.045, 
                               colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn)
                             ),
@@ -108,12 +166,12 @@ class LoginScreen extends StatelessWidget {
                         ),
                         SizedBox(height: h * 0.005),
                         Container(
-                          height: h * 0.045,
                           decoration: BoxDecoration(
                             color: creamWhite,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: TextField(
+                            controller: _passwordController,
                             obscureText: true,
                             style: GoogleFonts.montserrat(
                               color: primaryBrown,
@@ -122,7 +180,8 @@ class LoginScreen extends StatelessWidget {
                             ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: h * 0.012),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: h * 0.015),
+                              isDense: true,
                             ),
                           ),
                         ),
@@ -158,12 +217,7 @@ class LoginScreen extends StatelessWidget {
                             width: w * 0.376, // 443px out of 1179
                             height: h * 0.058, // 149px out of 2556
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const MainLayout()),
-                                );
-                              },
+                              onPressed: _isLoading ? null : _login,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: greenBg,
                                 padding: EdgeInsets.symmetric(horizontal: w * 0.02),
@@ -172,19 +226,25 @@ class LoginScreen extends StatelessWidget {
                                 ),
                                 elevation: 0,
                               ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  'CONTINUAR',
-                                  style: TextStyle(
-                                    fontFamily: 'Bernoru',
-                                    fontSize: w * 0.03, // 32px out of 1179
-                                    fontWeight: FontWeight.w800,
-                                    color: creamWhite,
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(color: creamWhite, strokeWidth: 2),
+                                    )
+                                  : FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        'CONTINUAR',
+                                        style: TextStyle(
+                                          fontFamily: 'Bernoru',
+                                          fontSize: w * 0.03, // 32px out of 1179
+                                          fontWeight: FontWeight.w800,
+                                          color: creamWhite,
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -219,7 +279,12 @@ class LoginScreen extends StatelessWidget {
                         SizedBox(
                           height: h * 0.058, // 148px out of 2556
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: greenBg,
                               padding: EdgeInsets.symmetric(horizontal: w * 0.02),
@@ -245,12 +310,12 @@ class LoginScreen extends StatelessWidget {
                         const Spacer(flex: 5),
 
                         // Iniciar con Instagram
-                        _buildSocialButton('assets/icons/instagram_icon.svg', 'Iniciar con Instagram', primaryBrown, creamWhite, h, w),
+                        _buildSocialButton('assets/media/79599d_ig.svg', 'Iniciar con Instagram', primaryBrown, creamWhite, h, w),
                         
                         const Spacer(flex: 5),
 
                         // Iniciar con Google
-                        _buildSocialButton('assets/icons/google_icon.svg', 'Iniciar con Google', primaryBrown, creamWhite, h, w),
+                        _buildSocialButton('assets/media/d7ea61_google.svg', 'Iniciar con Google', primaryBrown, creamWhite, h, w),
                         
                         const Spacer(flex: 30), // Bottom padding
                       ],

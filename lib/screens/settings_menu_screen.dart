@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../login_screen.dart';
+import '../services/auth_service.dart';
 
 class SettingsMenuScreen extends StatelessWidget {
   const SettingsMenuScreen({super.key});
@@ -26,7 +27,7 @@ class SettingsMenuScreen extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: SvgPicture.asset(
-                    'assets/icons/back_arrow.svg',
+                    'assets/media/ee45a3_back_arrow.svg',
                     height: 20,
                     colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                   ),
@@ -47,7 +48,7 @@ class SettingsMenuScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(top: 28, left: 10, right: 10),
                 child: SvgPicture.asset(
-                  'assets/icons/PERFIL.svg',
+                  'assets/media/b5e1db_perfil.svg',
                   fit: BoxFit.contain,
                 ),
               ),
@@ -55,9 +56,9 @@ class SettingsMenuScreen extends StatelessWidget {
             const SizedBox(height: 8),
             
             // Name and Email
-            const Text(
-              'Andrés Velasco',
-              style: TextStyle(
+            Text(
+              AuthService().getCurrentUser()?['name'] ?? 'Usuario',
+              style: const TextStyle(
                 color: primaryBrown,
                 fontWeight: FontWeight.w900,
                 fontSize: 24,
@@ -65,7 +66,7 @@ class SettingsMenuScreen extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              'sebastián.fve@gmail.com',
+              AuthService().getCurrentUser()?['email'] ?? 'usuario@ejemplo.com',
               style: TextStyle(
                 color: primaryBrown.withOpacity(0.9),
                 fontSize: 14,
@@ -87,12 +88,15 @@ class SettingsMenuScreen extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      (Route<dynamic> route) => false,
-                    );
+                  onPressed: () async {
+                    await AuthService().signOut();
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        (Route<dynamic> route) => false,
+                      );
+                    }
                   },
                   child: const Text(
                     'CERRAR SESIÓN',
@@ -117,15 +121,16 @@ class SettingsMenuScreen extends StatelessWidget {
                   children: [
                     // Mascot fixed at the bottom - cropped so only top part shows
                     Positioned(
-                      bottom: -80,
-                      left: -40,
-                      right: -40,
+                      bottom: -50,
+                      left: -10,
+                      right: -10,
                       child: IgnorePointer(
                         child: SvgPicture.asset(
-                          'assets/icons/Asset 27.svg',
-                          width: MediaQuery.of(context).size.width * 1.2,
+                          'assets/media/025531_buco_pet___pattern.svg',
+                          width: MediaQuery.of(context).size.width * 1.05,
                           fit: BoxFit.fitWidth,
                           alignment: Alignment.topCenter,
+                          colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                         ),
                       ),
                     ),
@@ -137,10 +142,10 @@ class SettingsMenuScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           const SizedBox(height: 0),
-                          _buildMenuItem('assets/icons/CONTRASEÑA.svg', 'Privacidad de la cuenta', greenBg, starYellow, primaryBrown),
-                          _buildMenuItem('assets/icons/FAQ.svg', 'FAQ', greenBg, starYellow, primaryBrown),
-                          _buildMenuItem('assets/icons/AYUDA.svg', 'Ayuda', greenBg, starYellow, primaryBrown),
-                          _buildMenuItem('assets/icons/CONTACTO.svg', 'Contacto', greenBg, starYellow, primaryBrown),
+                          _buildMenuItem('assets/media/772100_contrase_a.svg', 'Privacidad de la cuenta', greenBg, starYellow, primaryBrown),
+                          _buildMenuItem('assets/media/18ecef_faq.svg', 'FAQ', greenBg, starYellow, primaryBrown),
+                          _buildMenuItem('assets/media/985b73_ayuda.svg', 'Ayuda', greenBg, starYellow, primaryBrown),
+                          _buildMenuItem('assets/media/a91300_contacto.svg', 'Contacto', greenBg, starYellow, primaryBrown),
                         ],
                       ),
                     ),
@@ -189,7 +194,7 @@ class SettingsMenuScreen extends StatelessWidget {
           Transform.flip(
             flipX: true,
             child: SvgPicture.asset(
-              'assets/icons/back_arrow.svg',
+              'assets/media/ee45a3_back_arrow.svg',
               height: 15,
               colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn),
             ),

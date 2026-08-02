@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: const Color(0xFFF0531C),
       body: Center(
         child: SvgPicture.asset(
-          'assets/icons/Asset 51.svg',
+          'assets/media/8eae19_asset_51.svg',
           width: 250,
         ),
       ),

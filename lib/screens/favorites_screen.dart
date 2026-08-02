@@ -41,12 +41,12 @@ class FavoritesScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SvgPicture.asset(
-                          'assets/icons/Asset 30.svg',
+                          'assets/media/4f8e9a_asset_30.svg',
                           height: 28,
                           colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                         ),
                         SvgPicture.asset(
-                          'assets/icons/Asset 52.svg',
+                          'assets/media/4e9d05_asset_52.svg',
                           height: 50,
                           colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                         ),
@@ -58,7 +58,7 @@ class FavoritesScreen extends StatelessWidget {
                             );
                           },
                           child: SvgPicture.asset(
-                            'assets/icons/menu_icon.svg',
+                            'assets/media/3ff13c_menu_icon.svg',
                             width: 22,
                             colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
                           ),
@@ -70,7 +70,7 @@ class FavoritesScreen extends StatelessWidget {
                   
                   // Perfil simplificado
                   SvgPicture.asset(
-                    'assets/icons/profile_icon.svg',
+                    'assets/media/8c491b_profile_icon.svg',
                     width: 76,
                     height: 76,
                   ),
@@ -122,7 +122,7 @@ class FavoritesScreen extends StatelessWidget {
 
             // Icono de guardado gigante
             SvgPicture.asset(
-              'assets/icons/FAV.svg',
+              'assets/media/59675c_fav.svg',
               width: 35,
               colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn),
             ),
@@ -140,16 +140,16 @@ class FavoritesScreen extends StatelessWidget {
                     type: '', 
                     rating: 4.5, 
                     isSavedStyle: true,
-                    imageUrl: 'assets/icons/burger_king.svg',
+                    imageUrl: 'assets/media/f1a2d7_burger_kin.svg',
                     cardColor: Colors.white,
                   ),
                   SizedBox(width: 24),
                   RestaurantCard(
-                    name: 'MAC DONALDS', 
+                    name: "McDonald's", 
                     type: '', 
                     rating: 4.0, 
                     isSavedStyle: true,
-                    imageUrl: 'assets/icons/mcdonalds.svg',
+                    imageUrl: 'assets/media/c75819_mcdonalds.svg',
                     cardColor: Color(0xFFDA291C),
                   ),
                 ],
