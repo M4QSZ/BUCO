@@ -50,6 +50,7 @@ class RestaurantCard extends StatelessWidget {
   // Estilo de tarjeta para la pantalla de perfil/favoritos (Asset 30.svg)
   // Proporciones basadas en el SVG: card 525.05x738.14, aspect ratio ~0.711
   Widget _buildSavedStyle(Color primaryBrown, Color creamWhite) {
+    bool isSpecialBrand = name.toUpperCase() == 'BURGER KING' || name.toUpperCase() == "MCDONALD'S";
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -75,33 +76,34 @@ class RestaurantCard extends StatelessWidget {
         // SVG: logo a ~-10.3% left, ~22.6% top, tamaño ~70% del ancho
         // Con card width=160: left≈-16, top≈50, tamaño≈110
         Positioned(
-          top: 50,
-          left: -22,
+          top: isSpecialBrand ? 60 : 50,
+          left: isSpecialBrand ? -12 : -22,
           child: Container(
-            width: 140,
-            height: 140,
+            width: isSpecialBrand ? 120 : 140,
+            height: isSpecialBrand ? 120 : 140,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(isSpecialBrand ? 32 : 16),
               border: Border.all(color: creamWhite, width: 4),
-              color: cardColor ?? Colors.white,
+              color: Colors.white,
             ),
-            child: ClipOval(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(isSpecialBrand ? 28 : 12),
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(isSpecialBrand ? 0.0 : 20.0),
                 child: imageUrl != null
                     ? (imageUrl!.toLowerCase().endsWith('.svg')
                         ? SvgPicture.asset(
                             imageUrl!,
-                            fit: BoxFit.contain,
+                            fit: isSpecialBrand ? BoxFit.cover : BoxFit.contain,
                           )
                         : (imageUrl!.startsWith('http')
                             ? Image.network(
                                 imageUrl!,
-                                fit: BoxFit.contain,
+                                fit: isSpecialBrand ? BoxFit.cover : BoxFit.contain,
                               )
                             : Image.asset(
                                 imageUrl!,
-                                fit: BoxFit.contain,
+                                fit: isSpecialBrand ? BoxFit.cover : BoxFit.contain,
                               )))
                     : null,
               ),
@@ -149,6 +151,7 @@ class RestaurantCard extends StatelessWidget {
   }
 
   Widget _buildHomeStyle(Color primaryBrown, Color creamWhite) {
+    bool isSpecialBrand = name.toUpperCase() == 'BURGER KING' || name.toUpperCase() == "MCDONALD'S";
     return Stack(
       children: [
         Positioned.fill(
@@ -159,10 +162,10 @@ class RestaurantCard extends StatelessWidget {
             children: [
               // Imagen superior (cuadrada redondeada)
               Container(
-                height: 105, // Ajustado para proporción más cuadrada
+                height: isSpecialBrand ? 85 : 105, // Ajustado para hacer el logo más pequeño
                 decoration: BoxDecoration(
                   color: cardColor ?? Colors.black12,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(isSpecialBrand ? 32 : 12), // Más redondeado
                   border: Border.all(color: creamWhite, width: 3),
                   image: imageUrl != null && !imageUrl!.toLowerCase().endsWith('.svg')
                     ? DecorationImage(
@@ -175,7 +178,7 @@ class RestaurantCard extends StatelessWidget {
                 ),
                 child: imageUrl != null && imageUrl!.toLowerCase().endsWith('.svg')
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(isSpecialBrand ? 32 : 12), // Más redondeado
                         child: SvgPicture.asset(
                           imageUrl!,
                           fit: BoxFit.cover,

@@ -4,7 +4,9 @@ import '../login_screen.dart';
 import '../services/auth_service.dart';
 
 class SettingsMenuScreen extends StatelessWidget {
-  const SettingsMenuScreen({super.key});
+  final String userName;
+  
+  const SettingsMenuScreen({super.key, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +59,7 @@ class SettingsMenuScreen extends StatelessWidget {
             
             // Name and Email
             Text(
-              AuthService().getCurrentUser()?['name'] ?? 'Usuario',
+              userName,
               style: const TextStyle(
                 color: primaryBrown,
                 fontWeight: FontWeight.w900,

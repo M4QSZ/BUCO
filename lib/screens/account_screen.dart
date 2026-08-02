@@ -65,7 +65,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
+                                  MaterialPageRoute(builder: (context) => SettingsMenuScreen(userName: _userName)),
                                 );
                               },
                                child: SvgPicture.asset(
@@ -563,6 +563,7 @@ class _RestaurantCardsCarousel extends StatefulWidget {
 class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
   final ScrollController _scrollController = ScrollController();
   int _currentIndex = 0;
+  bool _isUserScrolling = false;
 
   final List<Map<String, dynamic>> restaurants = [
     {
@@ -580,19 +581,19 @@ class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
     {
       'name': "Carl's Jr",
       'rating': 4.3,
-      'imageUrl': 'assets/media/logo_carlsjr.svg',
+      'imageUrl': 'assets/media/logo_carlsjr.png',
       'cardColor': const Color(0xFFE21A22),
     },
     {
       'name': "Little Caesars",
       'rating': 3.9,
-      'imageUrl': 'assets/media/logo_littlecaesars.svg',
+      'imageUrl': 'assets/media/logo_littlecaesars.png',
       'cardColor': const Color(0xFFFF6600),
     },
     {
       'name': "Domino's Pizza",
       'rating': 4.2,
-      'imageUrl': 'assets/media/logo_dominos.svg',
+      'imageUrl': 'assets/media/logo_dominos.png',
       'cardColor': const Color(0xFF0055A5),
     },
     {
@@ -604,19 +605,19 @@ class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
     {
       'name': "Subway",
       'rating': 4.0,
-      'imageUrl': 'assets/media/logo_subway.svg',
+      'imageUrl': 'assets/media/logo_subway.png',
       'cardColor': const Color(0xFF008938),
     },
     {
       'name': "Pío Pío",
       'rating': 4.6,
-      'imageUrl': 'assets/media/logo_piopio.svg',
+      'imageUrl': 'assets/media/logo_piopio.png',
       'cardColor': const Color(0xFFF0531C), // Naranja Pío Pío
     },
     {
       'name': "Don Lee",
       'rating': 4.4,
-      'imageUrl': 'assets/media/logo_donlee.svg',
+      'imageUrl': 'assets/media/logo_donlee.png',
       'cardColor': const Color(0xFFC00A27),
     },
   ];
@@ -631,7 +632,7 @@ class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-      if (_scrollController.hasClients) {
+      if (_scrollController.hasClients && !_isUserScrolling) {
         double maxScroll = _scrollController.position.maxScrollExtent;
         double currentScroll = _scrollController.position.pixels;
         double cardWidthWithSpacing = 170.0 + 24.0; 
@@ -639,23 +640,18 @@ class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
         
         if (nextScroll > maxScroll) {
           nextScroll = 0;
-          _currentIndex = 0;
           _scrollController.animateTo(
             0,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
           );
         } else {
-          if (_currentIndex < restaurants.length - 1) {
-            _currentIndex++;
-          }
           _scrollController.animateTo(
             nextScroll,
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeInOut,
           );
         }
-        setState(() {});
       }
     });
   }
@@ -675,24 +671,45 @@ class _RestaurantCardsCarouselState extends State<_RestaurantCardsCarousel> {
       children: [
         SizedBox(
           height: 260,
-          child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 45),
-            itemCount: restaurants.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.only(right: index == restaurants.length - 1 ? 0 : 24.0),
-                child: RestaurantCard(
-                  name: restaurants[index]['name'],
-                  type: '',
-                  rating: restaurants[index]['rating'],
-                  isSavedStyle: true,
-                  imageUrl: restaurants[index]['imageUrl'],
-                  cardColor: restaurants[index]['cardColor'],
-                ),
-              );
-            },
+          child: Listener(
+            onPointerDown: (_) => _isUserScrolling = true,
+            onPointerUp: (_) => _isUserScrolling = false,
+            onPointerCancel: (_) => _isUserScrolling = false,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (ScrollNotification notification) {
+                if (notification is ScrollUpdateNotification) {
+                  int newIndex = (_scrollController.offset / (170.0 + 24.0)).round();
+                  if (newIndex < 0) newIndex = 0;
+                  if (newIndex >= restaurants.length) newIndex = restaurants.length - 1;
+                  
+                  if (newIndex != _currentIndex) {
+                    setState(() {
+                      _currentIndex = newIndex;
+                    });
+                  }
+                }
+                return true;
+              },
+              child: ListView.builder(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 45),
+                itemCount: restaurants.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.only(right: index == restaurants.length - 1 ? 0 : 24.0),
+                    child: RestaurantCard(
+                      name: restaurants[index]['name'],
+                      type: '',
+                      rating: restaurants[index]['rating'],
+                      isSavedStyle: true,
+                      imageUrl: restaurants[index]['imageUrl'],
+                      cardColor: restaurants[index]['cardColor'],
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 20),

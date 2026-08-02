@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/restaurant_card.dart';
+import '../widgets/review_carousel.dart';
 import 'settings_menu_screen.dart';
 import 'map/map_screen.dart';
 
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
+                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen(userName: 'Andrés Velasco')),
                   );
                 },
                 child: SvgPicture.asset(
@@ -102,62 +103,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 200,
-                    child: Row(
-                      children: const [
-                        Expanded(
-                          child: RestaurantCard(
-                            name: 'LUCCA', 
-                            type: 'Italiana', 
-                            rating: 4.5,
-                            imageUrl: 'assets/media/27281c_asset_35.png',
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: RestaurantCard(
-                            name: 'GIORGIO\'S', 
-                            type: 'Italiana', 
-                            rating: 4.0,
-                            imageUrl: 'assets/media/39d88b_asset_34.png',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 200,
-                    child: Row(
-                      children: const [
-                        Expanded(
-                          child: RestaurantCard(
-                            name: 'NAPOLI', 
-                            type: 'Pizzas', 
-                            rating: 4.8,
-                            imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop',
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: RestaurantCard(
-                            name: 'LOS AÑOS LOCOS', 
-                            type: 'Carnes', 
-                            rating: 4.7,
-                            imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const _MostLovedCarousel(),
             const SizedBox(height: 16),
             _buildPaginationDots(greenBg),
             const SizedBox(height: 24),
@@ -253,7 +199,21 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Review final
-            const _ReviewCarousel(),
+            const ReviewCarousel(
+              reviews: [
+                {'text': '"Muy buena comida!!"', 'icon': 'assets/media/c75819_mcdonalds.svg'},
+                {'text': '"Excelente servicio!!"', 'icon': 'assets/media/f1a2d7_burger_kin.svg'},
+                {'text': '"Llegó súper rápido!"', 'icon': 'assets/media/c75819_mcdonalds.svg'},
+                {'text': '"La mejor hamburguesa"', 'icon': 'assets/media/f1a2d7_burger_kin.svg'},
+                {'text': '"Siempre calientito"', 'icon': 'assets/media/c75819_mcdonalds.svg'},
+                {'text': '"Muy amables al entregar"', 'icon': 'assets/media/f1a2d7_burger_kin.svg'},
+                {'text': '"Todo perfecto, gracias"', 'icon': 'assets/media/c75819_mcdonalds.svg'},
+                {'text': '"Súper recomendado"', 'icon': 'assets/media/f1a2d7_burger_kin.svg'},
+                {'text': '"Buenísimo el sabor"', 'icon': 'assets/media/c75819_mcdonalds.svg'},
+                {'text': '"Volveré a pedir seguro"', 'icon': 'assets/media/f1a2d7_burger_kin.svg'},
+                {'text': '"El mejor restaurante"', 'icon': 'assets/media/c75819_mcdonalds.svg'},
+              ],
+            ),
             const SizedBox(height: 40),
           ],
         ),
@@ -486,65 +446,71 @@ class _CategoryCarouselState extends State<_CategoryCarousel> {
   }
 }
 
-class _ReviewCarousel extends StatefulWidget {
-  const _ReviewCarousel({Key? key}) : super(key: key);
+
+
+class _MostLovedCarousel extends StatefulWidget {
+  const _MostLovedCarousel({Key? key}) : super(key: key);
 
   @override
-  State<_ReviewCarousel> createState() => _ReviewCarouselState();
+  State<_MostLovedCarousel> createState() => _MostLovedCarouselState();
 }
 
-class _ReviewCarouselState extends State<_ReviewCarousel> {
-  final PageController _pageController = PageController();
+class _MostLovedCarouselState extends State<_MostLovedCarousel> {
+  final ScrollController _scrollController = ScrollController();
   int _currentIndex = 0;
+  Timer? _timer;
 
-  final List<Map<String, String>> reviews = [
+  final List<Map<String, dynamic>> restaurants = [
     {
-      'text': '"Muy buena comida!!"',
-      'icon': 'assets/media/c75819_mcdonalds.svg', // Changed to McDonald's
+      'name': 'LUCCA', 
+      'type': 'Italiana', 
+      'rating': 4.5,
+      'imageUrl': 'assets/media/27281c_asset_35.png',
     },
     {
-      'text': '"Excelente servicio!!"',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg', 
+      'name': 'GIORGIO\'S', 
+      'type': 'Italiana', 
+      'rating': 4.0,
+      'imageUrl': 'assets/media/39d88b_asset_34.png',
     },
     {
-      'text': '"Llegó súper rápido!"',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
+      'name': 'NAPOLI', 
+      'type': 'Pizzas', 
+      'rating': 4.8,
+      'imageUrl': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop',
     },
     {
-      'text': '"La mejor hamburguesa"',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
+      'name': 'LOS AÑOS LOCOS', 
+      'type': 'Carnes', 
+      'rating': 4.7,
+      'imageUrl': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
+    },
+    // Duplicados
+    {
+      'name': 'LUCCA', 
+      'type': 'Italiana', 
+      'rating': 4.5,
+      'imageUrl': 'assets/media/27281c_asset_35.png',
     },
     {
-      'text': '"Siempre calientito"',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
+      'name': 'GIORGIO\'S', 
+      'type': 'Italiana', 
+      'rating': 4.0,
+      'imageUrl': 'assets/media/39d88b_asset_34.png',
     },
     {
-      'text': '"Muy amables al entregar"',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
+      'name': 'NAPOLI', 
+      'type': 'Pizzas', 
+      'rating': 4.8,
+      'imageUrl': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop',
     },
     {
-      'text': '"Todo perfecto, gracias"',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
-    },
-    {
-      'text': '"Súper recomendado"',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
-    },
-    {
-      'text': '"Buenísimo el sabor"',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
-    },
-    {
-      'text': '"Volveré a pedir seguro"',
-      'icon': 'assets/media/f1a2d7_burger_kin.svg',
-    },
-    {
-      'text': '"El mejor restaurante"',
-      'icon': 'assets/media/c75819_mcdonalds.svg',
+      'name': 'LOS AÑOS LOCOS', 
+      'type': 'Carnes', 
+      'rating': 4.7,
+      'imageUrl': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
     },
   ];
-
-  Timer? _timer;
 
   @override
   void initState() {
@@ -554,18 +520,43 @@ class _ReviewCarouselState extends State<_ReviewCarousel> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-      if (_currentIndex < reviews.length - 1) {
-        _currentIndex++;
-      } else {
-        _currentIndex = 0;
-      }
-      
-      if (_pageController.hasClients) {
-        _pageController.animateToPage(
-          _currentIndex,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+      if (_scrollController.hasClients) {
+        double maxScroll = _scrollController.position.maxScrollExtent;
+        double currentScroll = _scrollController.position.pixels;
+        // MediaQuery para obtener el ancho
+        // itemWidth = MediaQuery.of(context).size.width / 2 - 24; (aproximadamente)
+        // separator = 16
+        // nextScroll = currentScroll + cardWidthWithSpacing;
+        // Pero sin context seguro en el timer (aunque se puede usar), mejor calculamos genéricamente
+        // o animamos de a poco
+        double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0; 
+        double nextScroll = currentScroll + cardWidthWithSpacing;
+        
+        if (nextScroll > maxScroll) {
+          nextScroll = 0;
+          _currentIndex = 0;
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          if (_currentIndex < restaurants.length - 1) {
+            _currentIndex++;
+            _scrollController.animateTo(
+              nextScroll,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+          } else {
+            _scrollController.animateTo(
+              0,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+            _currentIndex = 0;
+          }
+        }
       }
     });
   }
@@ -573,121 +564,35 @@ class _ReviewCarouselState extends State<_ReviewCarousel> {
   @override
   void dispose() {
     _timer?.cancel();
-    _pageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryBrown = Color(0xFF662715);
-    const Color creamWhite = Color(0xFFF8EDDB);
-    const Color greenBg = Color(0xFF2E563B);
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 100, // Altura fija para el PageView
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            itemCount: reviews.length,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.topCenter,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(top: 20),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: primaryBrown,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        reviews[index]['text']!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Bernoru',
-                          color: creamWhite, 
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    SvgPicture.asset(
-                      reviews[index]['icon']!,
-                      width: 40,
-                      height: 40,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+    return SizedBox(
+      height: 440, // 2 filas de tarjetas + espaciado
+      child: GridView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: restaurants.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // 2 tarjetas de alto
+          mainAxisSpacing: 16.0,
+          crossAxisSpacing: 16.0,
+          childAspectRatio: 1.1, // Ajuste para que las tarjetas se vean bien
         ),
-        const SizedBox(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  if (_currentIndex > 0) {
-                    _pageController.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                child: SvgPicture.asset(
-                  'assets/media/91ea5f_pagination_arrow.svg',
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(greenBg, BlendMode.srcIn),
-                ),
-              ),
-              Row(
-                children: List.generate(
-                  reviews.length,
-                  (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _currentIndex == index ? 10 : 8,
-                    height: _currentIndex == index ? 10 : 8,
-                    decoration: BoxDecoration(
-                      color: _currentIndex == index ? greenBg : greenBg.withOpacity(0.4),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  if (_currentIndex < reviews.length - 1) {
-                    _pageController.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                child: Transform.flip(
-                  flipX: true,
-                  child: SvgPicture.asset(
-                    'assets/media/91ea5f_pagination_arrow.svg',
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(greenBg, BlendMode.srcIn),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        itemBuilder: (context, index) {
+          final rest = restaurants[index];
+          return RestaurantCard(
+            name: rest['name'],
+            type: rest['type'],
+            rating: rest['rating'],
+            imageUrl: rest['imageUrl'],
+          );
+        },
+      ),
     );
   }
 }

@@ -365,7 +365,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen()),
+                    MaterialPageRoute(builder: (context) => const SettingsMenuScreen(userName: 'Andrés Velasco')),
                   );
                 },
                 child: SvgPicture.asset(
