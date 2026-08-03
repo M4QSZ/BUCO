@@ -7,7 +7,6 @@ class UserProvider extends ChangeNotifier {
   
   // Dummy stats
   int _reviewsCount = 0;
-  int _favoritesCount = 0;
   int _restaurantsCount = 0;
   
   // Dummy reviews left by user
@@ -29,7 +28,6 @@ class UserProvider extends ChangeNotifier {
   String get email => AuthService().getCurrentUser()?['email'] ?? '¡¡hola!!';
   
   int get reviewsCount => _reviewsCount;
-  int get favoritesCount => _favoritesCount;
   int get restaurantsCount => _restaurantsCount;
   
   List<Map<String, String>> get userReviews => _userReviews;

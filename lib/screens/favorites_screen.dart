@@ -105,7 +105,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   Column(
                     children: [
                       Text(
-                        userProvider.favoritesCount.toString(),
+                        context.watch<RestaurantProvider>().favoritesCount.toString(),
                         style: const TextStyle(
                           color: creamWhite,
                           fontWeight: FontWeight.w600,

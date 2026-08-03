@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import '../../providers/restaurant_provider.dart';
 
 class RestaurantInfoCard extends StatelessWidget {
-  const RestaurantInfoCard({super.key});
+  final String name;
+  final String type;
+  final double rating;
+
+  const RestaurantInfoCard({
+    super.key,
+    required this.name,
+    required this.type,
+    required this.rating,
+  });
 
   @override
   Widget build(BuildContext context) {
     const Color primaryBrown = Color(0xFF662715);
     const Color creamWhite = Color(0xFFF8EDDB);
+    final restaurantProvider = context.watch<RestaurantProvider>();
+    final bool isFav = restaurantProvider.isFavorite(name);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -16,6 +29,7 @@ class RestaurantInfoCard extends StatelessWidget {
           Expanded(
             flex: 12,
             child: Container(
+              height: 105,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: BoxDecoration(
                 color: primaryBrown,
@@ -27,21 +41,26 @@ class RestaurantInfoCard extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'BURGER\nKING',
-                          style: TextStyle(
-                            fontFamily: 'Bernoru',
-                            color: creamWhite,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 20,
-                            height: 1.1,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            name.toUpperCase().replaceAll(' ', '\n'), // Separar palabras por línea para emular estilo previo, o simplemente name.
+                            style: const TextStyle(
+                              fontFamily: 'Bernoru',
+                              color: creamWhite,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
+                              height: 1.1,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Hamburguesas - Comida rápida',
-                          style: TextStyle(
+                        Text(
+                          type,
+                          style: const TextStyle(
                             color: creamWhite,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
@@ -50,10 +69,17 @@ class RestaurantInfoCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SvgPicture.asset(
-                    'assets/media/8d6e5a_fav_sin_marcar.svg', 
-                    width: 28, 
-                    colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn)
+                  GestureDetector(
+                    onTap: () {
+                      restaurantProvider.toggleFavorite(name);
+                    },
+                    child: SvgPicture.asset(
+                      isFav 
+                          ? 'assets/media/107df8_marcar_favorito.svg' 
+                          : 'assets/media/8d6e5a_fav_sin_marcar.svg', 
+                      width: 28, 
+                      colorFilter: const ColorFilter.mode(Color(0xFFF2BF4A), BlendMode.srcIn)
+                    ),
                   ),
                 ],
               ),
@@ -68,10 +94,10 @@ class RestaurantInfoCard extends StatelessWidget {
                 color: const Color(0xFFF2BF4A),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '4.5',
-                  style: TextStyle(
+                  rating.toStringAsFixed(1),
+                  style: const TextStyle(
                     fontFamily: 'Bernoru',
                     color: creamWhite,
                     fontWeight: FontWeight.w800,

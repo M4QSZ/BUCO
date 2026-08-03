@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../main_layout.dart';
 import 'package:provider/provider.dart';
 import '../providers/restaurant_provider.dart';
@@ -12,7 +13,11 @@ import 'restaurant_detail/restaurant_info_card.dart';
 import 'restaurant_detail/restaurant_leave_review_section.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
-  const RestaurantDetailScreen({super.key});
+  final String restaurantName;
+  final String? logoImage;
+  final String? type;
+  final double? rating;
+  const RestaurantDetailScreen({super.key, required this.restaurantName, this.logoImage, this.type, this.rating});
 
   @override
   State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
@@ -21,13 +26,33 @@ class RestaurantDetailScreen extends StatefulWidget {
 class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   bool isDetailsSelected = true;
   late PageController _pageController;
+  late PageController _imageSliderController;
   Timer? _timer;
   int _currentCommentPage = 0;
+  int _currentImageSliderPage = 0;
+
+  Future<void> _launchWhatsApp(String? phone) async {
+    // Si no tiene teléfono en la base de datos o el mock, inventamos uno por defecto de Panamá.
+    final String targetPhone = (phone != null && phone.toString().trim().isNotEmpty) ? phone.toString() : "50760000000";
+    String cleanPhone = targetPhone.replaceAll(RegExp(r'[^\d]'), '');
+    final Uri whatsappUrl = Uri.parse("https://wa.me/$cleanPhone");
+    
+    if (await canLaunchUrl(whatsappUrl)) {
+      await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo abrir WhatsApp.')),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+    _imageSliderController = PageController(initialPage: 0);
     _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (!isDetailsSelected && _pageController.hasClients) {
         int nextPage = _currentCommentPage + 1;
@@ -47,6 +72,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
+    _imageSliderController.dispose();
     super.dispose();
   }
 
@@ -59,8 +85,19 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     const Color greenBg = Color(0xFF2E563B);
 
     final restaurantProvider = context.watch<RestaurantProvider>();
-    final userProvider = context.read<UserProvider>();
-    final reviews = restaurantProvider.restaurantReviews;
+    final userProvider = Provider.of<UserProvider>(context);
+    
+    final restaurantDetails = restaurantProvider.getDetailsFor(widget.restaurantName);
+    
+    // Lista de imágenes para el slider
+    List<String> sliderImages = [];
+    if (restaurantDetails.containsKey('sliderImages') && restaurantDetails['sliderImages'] != null) {
+      sliderImages = List<String>.from(restaurantDetails['sliderImages']);
+    } else {
+      // Fallback
+      sliderImages = [restaurantDetails['headerImage'] ?? 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&auto=format&fit=crop'];
+    }
+    final reviews = restaurantProvider.getReviewsFor(widget.restaurantName);
 
     return Scaffold(
       backgroundColor: creamWhite,
@@ -72,11 +109,18 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Cabecera Naranja con logo gigante
-                const RestaurantHeaderImage(),
+                RestaurantHeaderImage(
+                  headerImage: restaurantDetails['headerImage'],
+                  logoImage: widget.logoImage ?? restaurantDetails['logoImage'],
+                ),
                 const SizedBox(height: 20),
                 
                 // Fila de Info (Nombre, Calificación, Icono User)
-                const RestaurantInfoCard(),
+                RestaurantInfoCard(
+                  name: restaurantDetails['name'],
+                  type: widget.type != null && widget.type!.isNotEmpty ? widget.type! : restaurantDetails['type'],
+                  rating: widget.rating ?? (restaurantDetails['rating'] as num).toDouble(),
+                ),
                 const SizedBox(height: 20),
 
                 // Fila de Botones (Detalles, Reviews, Menu, Phone)
@@ -132,17 +176,43 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                         ),
                       ),
                       const Spacer(),
-                      SvgPicture.asset(
-                        'assets/media/a91996_asset_32.svg', 
-                        width: 28,
-                        colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                      GestureDetector(
+                        onTap: () async {
+                          final menuLink = restaurantDetails['menuLink'];
+                          if (menuLink != null && menuLink.toString().isNotEmpty) {
+                            final Uri menuUrl = Uri.parse(menuLink);
+                            if (await canLaunchUrl(menuUrl)) {
+                              await launchUrl(menuUrl, mode: LaunchMode.externalApplication);
+                            } else {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('No se pudo abrir el menú.')),
+                                );
+                              }
+                            }
+                          } else {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Este local no tiene menú disponible.')),
+                              );
+                            }
+                          }
+                        },
+                        child: SvgPicture.asset(
+                          'assets/media/a91996_asset_32.svg', 
+                          width: 28,
+                          colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                        ),
                       ), // Menú SVG
                       const SizedBox(width: 16),
-                      SvgPicture.asset(
-                        'assets/media/f92c0e_asset_33.svg', 
-                        width: 24,
-                        colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
-                      ), // Teléfono SVG
+                      GestureDetector(
+                        onTap: () => _launchWhatsApp(restaurantDetails['phone']),
+                        child: SvgPicture.asset(
+                          'assets/media/f92c0e_asset_33.svg', 
+                          width: 24,
+                          colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+                        ), // Teléfono SVG
+                      ),
                     ],
                   ),
                 ),
@@ -150,11 +220,11 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
 
                 if (isDetailsSelected) ...[
                   // Texto descriptivo
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: Text(
-                      '¡Bienvenido a Burger King, el hogar original del Whopper! Disfruta de nuestras clásicas hamburguesas a la parrilla, preparadas con ingredientes frescos y de la mejor calidad. Contamos con un ambiente familiar, servicio rápido y promociones increíbles todos los días. Ven a saborear la experiencia que nos hace únicos y descubre por qué somos tu mejor opción para disfrutar de comida rápida con un sabor auténtico.',
-                      style: TextStyle(
+                      restaurantDetails['description'] ?? '',
+                      style: const TextStyle(
                         color: primaryBrown,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -166,7 +236,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                 ] else ...[
                   // Sección de Reseña de Usuario
                   SizedBox(
-                    height: 135,
+                    height: 200,
                     child: PageView(
                       controller: _pageController,
                       onPageChanged: (int page) {
@@ -241,7 +311,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   
                   // Paginación (línea verde)
                   CarouselIndicator(
-                    itemCount: 8,
+                    itemCount: reviews.length,
                     currentIndex: _currentCommentPage,
                     activeColor: greenBg,
                   ),
@@ -254,15 +324,30 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Imagen de fondo
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          image: DecorationImage(
-                            image: NetworkImage('https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&auto=format&fit=crop'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                      // PageView para el slider de imágenes
+                      PageView.builder(
+                        controller: _imageSliderController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentImageSliderPage = index;
+                          });
+                        },
+                        itemCount: sliderImages.length,
+                        itemBuilder: (context, index) {
+                          String imagePath = sliderImages[index];
+                          bool isNetwork = imagePath.startsWith('http');
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              image: DecorationImage(
+                                image: isNetwork 
+                                    ? NetworkImage(imagePath) as ImageProvider 
+                                    : AssetImage(imagePath),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       // Degradado negro en la parte inferior para que se vean los puntos
                       Positioned(
@@ -285,33 +370,59 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                         bottom: 8,
                         child: Row(
                           children: [
-                            SvgPicture.asset(
-                              'assets/media/91ea5f_pagination_arrow.svg',
-                              height: 14,
-                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            GestureDetector(
+                              onTap: () {
+                                if (_currentImageSliderPage > 0) {
+                                  _imageSliderController.previousPage(
+                                    duration: const Duration(milliseconds: 300), 
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
+                              },
+                              child: SvgPicture.asset(
+                                'assets/media/91ea5f_pagination_arrow.svg',
+                                height: 14,
+                                colorFilter: ColorFilter.mode(
+                                  _currentImageSliderPage > 0 ? Colors.white : Colors.white54, 
+                                  BlendMode.srcIn
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 8),
                             Row(
                               children: List.generate(
-                                11,
+                                sliderImages.length,
                                 (index) => Container(
                                   margin: const EdgeInsets.symmetric(horizontal: 3),
                                   width: 6,
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: index == 0 ? Colors.white : Colors.white54,
+                                    color: index == _currentImageSliderPage ? Colors.white : Colors.white54,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Transform.flip(
-                              flipX: true,
-                              child: SvgPicture.asset(
-                                'assets/media/91ea5f_pagination_arrow.svg',
-                                height: 14,
-                                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            GestureDetector(
+                              onTap: () {
+                                if (_currentImageSliderPage < sliderImages.length - 1) {
+                                  _imageSliderController.nextPage(
+                                    duration: const Duration(milliseconds: 300), 
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
+                              },
+                              child: Transform.flip(
+                                flipX: true,
+                                child: SvgPicture.asset(
+                                  'assets/media/91ea5f_pagination_arrow.svg',
+                                  height: 14,
+                                  colorFilter: ColorFilter.mode(
+                                    _currentImageSliderPage < sliderImages.length - 1 ? Colors.white : Colors.white54, 
+                                    BlendMode.srcIn
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -362,7 +473,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
 
                 // Separador Punteado Mejorado (Dashes)
                 CarouselIndicator(
-                  itemCount: 8,
+                  itemCount: reviews.length,
                   currentIndex: _currentCommentPage,
                   activeColor: greenBg.withValues(alpha: 0.8),
                 ),
@@ -374,6 +485,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   initialRating: 5.0,
                   onSubmit: (rating, comment) {
                     restaurantProvider.addReview(
+                      widget.restaurantName,
                       userProvider.userName,
                       comment,
                       rating,

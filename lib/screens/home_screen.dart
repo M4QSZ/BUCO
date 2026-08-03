@@ -7,7 +7,11 @@ import 'package:provider/provider.dart';
 import '../providers/home_provider.dart';
 import '../widgets/custom_app_header.dart';
 import 'map/map_screen.dart';
+import '../widgets/auto_scroll_restaurant_carousel.dart';
+import '../widgets/auto_scroll_discover_carousel.dart';
+import '../providers/restaurant_provider.dart';
 import '../widgets/carousel_indicator.dart';
+import 'category_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -31,18 +35,17 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Banner Principal
-            Container(
-              height: 220,
-              margin: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: AssetImage('assets/media/392bec_asset_31.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
+            const _BannerCarousel(
+              banners: [
+                'assets/media/392bec_asset_31.png',
+                'assets/media/2.png',
+                'assets/media/2323.png',
+                'assets/media/3.png',
+                'assets/media/4.png',
+                'assets/media/5e48b5818af0117f322d7c4ae77977a8.png',
+                'assets/media/experimenta-lo-mejor333.png',
+              ],
             ),
-            CarouselIndicator(itemCount: 9, currentIndex: -1, activeColor: greenBg),
             const SizedBox(height: 16),
             
             _CategoryCarousel(),
@@ -88,34 +91,14 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: 260,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 45),
-                      children: const [
-                        RestaurantCard(
-                          name: 'BURGER KING', 
-                          type: '', 
-                          rating: 4.5, 
-                          isSavedStyle: true,
-                          imageUrl: 'assets/media/f1a2d7_burger_kin.svg',
-                          cardColor: Colors.white,
-                        ),
-                        SizedBox(width: 24), // Añadido para recuperar el espacio
-                        RestaurantCard(
-                          name: "McDonald's", 
-                          type: '', 
-                          rating: 4.0, 
-                          isSavedStyle: true,
-                          imageUrl: 'assets/media/c75819_mcdonalds.svg',
-                          cardColor: Color(0xFFDA291C),
-                        ),
-                      ],
-                    ),
+                  Consumer<RestaurantProvider>(
+                    builder: (context, restaurantProvider, child) {
+                      return AutoScrollRestaurantCarousel(
+                        restaurants: restaurantProvider.favoriteRestaurants,
+                        indicatorActiveColor: Colors.white,
+                      );
+                    },
                   ),
-                  const SizedBox(height: 24),
-                  CarouselIndicator(itemCount: 9, currentIndex: -1, activeColor: Colors.white),
                 ],
               ),
             ),
@@ -137,24 +120,14 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 80,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildColorBox(Colors.red),
-                  const SizedBox(width: 16),
-                  _buildColorBox(greenBg),
-                  const SizedBox(width: 16),
-                  _buildColorBox(primaryOrange),
-                  const SizedBox(width: 16),
-                  _buildColorBox(const Color(0xFFF2BF4A)),
-                ],
-              ),
+            Consumer<RestaurantProvider>(
+              builder: (context, restaurantProvider, child) {
+                return AutoScrollDiscoverCarousel(
+                  restaurants: restaurantProvider.discoverRestaurants,
+                  indicatorActiveColor: greenBg,
+                );
+              },
             ),
-            const SizedBox(height: 16),
-            // Puntitos de paginación para Descubre
-            CarouselIndicator(itemCount: 9, currentIndex: -1, activeColor: greenBg),
             const SizedBox(height: 32),
 
             // Review final
@@ -194,15 +167,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildColorBox(Color color) {
-    return Container(
-      width: 80,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-      ),
-    );
-  }
+
 
 
 }
@@ -261,55 +226,65 @@ class _CategoryCarouselState extends State<_CategoryCarousel> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: pageItems.map((item) {
-                    return Column(
-                      children: [
-                        SizedBox(
-                          width: 70,
-                          height: 70,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                width: 70,
-                                height: 70,
-                                decoration: BoxDecoration(
-                                  color: creamWhite,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              Positioned(
-                                top: -20, // Sobresale más
-                                bottom: -10,
-                                left: -20,
-                                right: -20,
-                                child: Image.asset(
-                                  item['image']!,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ],
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CategoryScreen(categoryTitle: item['title']!),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: 70,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown, // Achica la letra si no cabe
-                            child: Text(
-                              item['title']!,
-                              textAlign: TextAlign.center,
-                              maxLines: 2, // Permite 2 líneas si aun así necesita bajar
-                              style: const TextStyle(
-                                fontFamily: 'Bernoru',
-                                color: Color(0xFFF2BF4A),
-                                fontWeight: FontWeight.w900,
-                                fontSize: 11, // Tamaño base
+                        );
+                      },
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: 70,
+                            height: 70,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                    color: creamWhite,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -20, // Sobresale más
+                                  bottom: -10,
+                                  left: -20,
+                                  right: -20,
+                                  child: Image.asset(
+                                    item['image']!,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: 70,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown, // Achica la letra si no cabe
+                              child: Text(
+                                item['title']!,
+                                textAlign: TextAlign.center,
+                                maxLines: 2, // Permite 2 líneas si aun así necesita bajar
+                                style: const TextStyle(
+                                  fontFamily: 'Bernoru',
+                                  color: Color(0xFFF2BF4A),
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 11, // Tamaño base
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
                   }).toList(),
                 );
@@ -398,16 +373,9 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
 
   void _onScroll() {
     if (_scrollController.hasClients) {
-      double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0; 
-      // Avoid division by zero
+      double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0;
       if (cardWidthWithSpacing > 0) {
-        int newIndex = (_scrollController.offset / cardWidthWithSpacing).round();
-        final restaurantsCount = context.read<HomeProvider>().mostLovedRestaurants.length;
-        int totalColumns = (restaurantsCount / 2).ceil();
-        
-        if (newIndex >= totalColumns) newIndex = totalColumns - 1;
-        if (newIndex < 0) newIndex = 0;
-        
+        int newIndex = (_scrollController.position.pixels / cardWidthWithSpacing).round();
         if (newIndex != _currentIndex) {
           setState(() {
             _currentIndex = newIndex;
@@ -420,15 +388,12 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
       if (_scrollController.hasClients) {
-        final restaurantsCount = context.read<HomeProvider>().mostLovedRestaurants.length;
-        int totalColumns = (restaurantsCount / 2).ceil();
-        
         double maxScroll = _scrollController.position.maxScrollExtent;
         double currentScroll = _scrollController.position.pixels;
         double cardWidthWithSpacing = (MediaQuery.of(context).size.width / 2) - 8.0; 
         double nextScroll = currentScroll + cardWidthWithSpacing;
         
-        if (nextScroll > maxScroll || _currentIndex >= totalColumns - 1) {
+        if (nextScroll > maxScroll || (maxScroll - currentScroll) < 10) {
           _scrollController.animateTo(
             0,
             duration: const Duration(milliseconds: 500),
@@ -448,16 +413,26 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
   @override
   void dispose() {
     _timer?.cancel();
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color greenBg = Color(0xFF2E563B);
     final restaurants = context.watch<HomeProvider>().mostLovedRestaurants;
-    int totalColumns = (restaurants.length / 2).ceil();
+    int columnsCount = (restaurants.length / 2).ceil();
+    // Usually only columnsCount - 1 steps are needed to reach the end if 2 columns are visible, 
+    // but to keep it simple, we show dots for each scrollable column step.
+    int indicatorCount = columnsCount > 1 ? columnsCount - 1 : 1; 
+    
+    // Safety bound for currentIndex to avoid out-of-range errors in the indicator
+    int displayIndex = _currentIndex;
+    if (displayIndex >= indicatorCount) {
+      displayIndex = indicatorCount - 1;
+    }
+    if (displayIndex < 0) {
+      displayIndex = 0;
+    }
 
     return Column(
       children: [
@@ -476,18 +451,113 @@ class _MostLovedCarouselState extends State<_MostLovedCarousel> {
             ),
             itemBuilder: (context, index) {
               final rest = restaurants[index];
+              final restaurantProvider = context.watch<RestaurantProvider>();
+              final restName = rest['name'] as String;
               return RestaurantCard(
-                name: rest['name'],
+                name: restName,
                 type: rest['type'],
                 rating: rest['rating'],
                 imageUrl: rest['imageUrl'],
+                isFavorite: restaurantProvider.isFavorite(restName),
+                onFavoriteToggle: () => restaurantProvider.toggleFavorite(restName, data: rest),
               );
             },
           ),
         ),
         const SizedBox(height: 16),
-        CarouselIndicator(itemCount: totalColumns, currentIndex: _currentIndex, activeColor: greenBg),
+        CarouselIndicator(
+          itemCount: indicatorCount, 
+          currentIndex: displayIndex, 
+          activeColor: const Color(0xFF2E563B),
+        ),
       ],
     );
   }
 }
+
+class _BannerCarousel extends StatefulWidget {
+  final List<String> banners;
+  const _BannerCarousel({Key? key, required this.banners}) : super(key: key);
+
+  @override
+  State<_BannerCarousel> createState() => _BannerCarouselState();
+}
+
+class _BannerCarouselState extends State<_BannerCarousel> {
+  final PageController _pageController = PageController();
+  int _currentIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+      if (_pageController.hasClients) {
+        int nextPage = _currentIndex + 1;
+        if (nextPage >= widget.banners.length) {
+          nextPage = 0;
+          _pageController.animateToPage(
+            nextPage,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          _pageController.animateToPage(
+            nextPage,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 220,
+          margin: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemCount: widget.banners.length,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    image: AssetImage(widget.banners[index]),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        CarouselIndicator(
+          itemCount: widget.banners.length, 
+          currentIndex: _currentIndex, 
+          activeColor: const Color(0xFF2E563B),
+        ),
+      ],
+    );
+  }
+}
+

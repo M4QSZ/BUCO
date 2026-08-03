@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/restaurant_provider.dart';
 import '../settings_menu_screen.dart';
 
 class ProfileHeaderCard extends StatelessWidget {
@@ -153,7 +154,7 @@ class ProfileHeaderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(child: _buildStat(userProvider.reviewsCount.toString(), 'CALIFICACIONES')),
-              Expanded(child: _buildStat(userProvider.favoritesCount.toString(), 'FAVORITOS')),
+              Expanded(child: _buildStat(context.watch<RestaurantProvider>().favoritesCount.toString(), 'FAVORITOS')),
               Expanded(child: _buildStat(userProvider.restaurantsCount.toString(), 'RESTAURANTES')),
             ],
           ),

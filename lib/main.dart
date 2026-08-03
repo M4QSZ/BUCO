@@ -10,7 +10,15 @@ import 'providers/user_provider.dart';
 import 'providers/restaurant_provider.dart';
 import 'providers/search_provider.dart';
 
-void main() {
+import 'services/database/local_database.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializamos la base de datos local
+  final localDb = LocalDatabase();
+  await localDb.init();
+
   runApp(
     MultiProvider(
       providers: [

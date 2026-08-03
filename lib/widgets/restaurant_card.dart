@@ -11,6 +11,8 @@ class RestaurantCard extends StatelessWidget {
   final bool isLargeTitle;
   final String? imageUrl; 
   final bool isSavedStyle; // Nuevo parametro para estilo de Mi Cuenta / Favoritos
+  final bool isFavorite; // Si el restaurante está marcado como favorito
+  final VoidCallback? onFavoriteToggle; // Callback al tocar el ícono de favorito
 
   const RestaurantCard({
     super.key,
@@ -22,6 +24,8 @@ class RestaurantCard extends StatelessWidget {
     this.isLargeTitle = false,
     this.imageUrl,
     this.isSavedStyle = false, // Por defecto usa el estilo del Home (BUCO 6)
+    this.isFavorite = false,
+    this.onFavoriteToggle,
   });
 
   @override
@@ -32,7 +36,14 @@ class RestaurantCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const RestaurantDetailScreen()),
+          MaterialPageRoute(
+            builder: (_) => RestaurantDetailScreen(
+              restaurantName: name,
+              logoImage: imageUrl,
+              type: type,
+              rating: rating,
+            ),
+          ),
         );
       },
       child: Container(
@@ -50,13 +61,10 @@ class RestaurantCard extends StatelessWidget {
   // Estilo de tarjeta para la pantalla de perfil/favoritos (Asset 30.svg)
   // Proporciones basadas en el SVG: card 525.05x738.14, aspect ratio ~0.711
   Widget _buildSavedStyle(Color primaryBrown, Color creamWhite) {
-    bool isSpecialBrand = name.toUpperCase() == 'BURGER KING' || name.toUpperCase() == "MCDONALD'S";
     return Stack(
       clipBehavior: Clip.none,
       children: [
         // Texto del nombre del restaurante
-        // SVG: posicionado a ~4.3% left, ~12.3% top del card
-        // Con card width=160, height~225: left≈7, top≈28
         Positioned(
           top: 14,
           left: 14,
@@ -72,41 +80,36 @@ class RestaurantCard extends StatelessWidget {
           ),
         ),
 
-        // Logo circular sobresaliendo a la izquierda
-        // SVG: logo a ~-10.3% left, ~22.6% top, tamaño ~70% del ancho
-        // Con card width=160: left≈-16, top≈50, tamaño≈110
+        // Logo/imagen sobresaliendo a la izquierda
         Positioned(
-          top: isSpecialBrand ? 60 : 50,
-          left: isSpecialBrand ? -12 : -22,
+          top: 70,
+          left: -16,
           child: Container(
-            width: isSpecialBrand ? 120 : 140,
-            height: isSpecialBrand ? 120 : 140,
+            width: 125,
+            height: 125,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(isSpecialBrand ? 32 : 16),
+              borderRadius: BorderRadius.circular(28),
               border: Border.all(color: creamWhite, width: 4),
-              color: Colors.white,
+              color: cardColor ?? Colors.white,
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(isSpecialBrand ? 28 : 12),
-              child: Padding(
-                padding: EdgeInsets.all(isSpecialBrand ? 0.0 : 20.0),
-                child: imageUrl != null
-                    ? (imageUrl!.toLowerCase().endsWith('.svg')
-                        ? SvgPicture.asset(
-                            imageUrl!,
-                            fit: isSpecialBrand ? BoxFit.cover : BoxFit.contain,
-                          )
-                        : (imageUrl!.startsWith('http')
-                            ? Image.network(
-                                imageUrl!,
-                                fit: isSpecialBrand ? BoxFit.cover : BoxFit.contain,
-                              )
-                            : Image.asset(
-                                imageUrl!,
-                                fit: isSpecialBrand ? BoxFit.cover : BoxFit.contain,
-                              )))
-                    : null,
-              ),
+              borderRadius: BorderRadius.circular(24),
+              child: imageUrl != null
+                  ? (imageUrl!.toLowerCase().endsWith('.svg')
+                      ? SvgPicture.asset(
+                          imageUrl!,
+                          fit: BoxFit.cover,
+                        )
+                      : (imageUrl!.startsWith('http')
+                          ? Image.network(
+                              imageUrl!,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              imageUrl!,
+                              fit: BoxFit.cover,
+                            )))
+                  : null,
             ),
           ),
         ),
@@ -140,10 +143,18 @@ class RestaurantCard extends StatelessWidget {
         Positioned(
           bottom: 14,
           right: 14,
-          child: SvgPicture.asset(
-            'assets/media/8d6e5a_fav_sin_marcar.svg',
-            width: 22,
-            colorFilter: const ColorFilter.mode(Color(0xFF662715), BlendMode.srcIn),
+          child: GestureDetector(
+            onTap: onFavoriteToggle,
+            child: SvgPicture.asset(
+              isFavorite
+                  ? 'assets/media/107df8_marcar_favorito.svg'
+                  : 'assets/media/8d6e5a_fav_sin_marcar.svg',
+              width: 22,
+              colorFilter: ColorFilter.mode(
+                isFavorite ? const Color(0xFFF2BF4A) : const Color(0xFF662715),
+                BlendMode.srcIn,
+              ),
+            ),
           ),
         ),
       ],
@@ -243,10 +254,18 @@ class RestaurantCard extends StatelessWidget {
         Positioned(
           bottom: 12,
           right: 12,
-          child: SvgPicture.asset(
-            'assets/media/8d6e5a_fav_sin_marcar.svg',
-            width: 24,
-            colorFilter: ColorFilter.mode(primaryBrown, BlendMode.srcIn),
+          child: GestureDetector(
+            onTap: onFavoriteToggle,
+            child: SvgPicture.asset(
+              isFavorite
+                  ? 'assets/media/107df8_marcar_favorito.svg'
+                  : 'assets/media/8d6e5a_fav_sin_marcar.svg',
+              width: 24,
+              colorFilter: ColorFilter.mode(
+                isFavorite ? const Color(0xFFF2BF4A) : primaryBrown,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
         ),
       ],

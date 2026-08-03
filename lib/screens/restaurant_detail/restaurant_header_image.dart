@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:provider/provider.dart';
+import '../map/map_screen.dart';
+import '../settings_menu_screen.dart';
+import '../../providers/user_provider.dart';
 class RestaurantHeaderImage extends StatelessWidget {
-  const RestaurantHeaderImage({super.key});
+  final String headerImage;
+  final String logoImage;
+  
+  const RestaurantHeaderImage({
+    super.key,
+    required this.headerImage,
+    required this.logoImage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +45,17 @@ class RestaurantHeaderImage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const MapScreen(),
+                      ),
+                    );
+                  },
                   child: SvgPicture.asset(
-                    'assets/media/ee45a3_back_arrow.svg',
+                    'assets/media/4f8e9a_asset_30.svg', // Map pin to match screenshot
                     height: 28,
-                    colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                    colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                   ),
                 ),
                 SvgPicture.asset(
@@ -48,27 +64,52 @@ class RestaurantHeaderImage extends StatelessWidget {
                   colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    final userProvider = Provider.of<UserProvider>(context, listen: false);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingsMenuScreen(userName: userProvider.userName),
+                      ),
+                    );
+                  },
                   child: SvgPicture.asset(
                     'assets/media/3ff13c_menu_icon.svg', 
                     width: 22, 
-                    colorFilter: const ColorFilter.mode(creamWhite, BlendMode.srcIn),
+                    colorFilter: const ColorFilter.mode(primaryBrown, BlendMode.srcIn),
                   ),
                 ),
               ],
             ),
           ),
           
-          // Logo de Burger King gigante
+          // Logo circular o contenedor
           Positioned(
             bottom: 0,
-            child: SizedBox(
-              width: 200,
-              height: 200,
-              child: SvgPicture.asset(
-                'assets/media/f1a2d7_burger_kin.svg',
-                fit: BoxFit.contain,
+            child: Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                border: Border.all(color: creamWhite, width: 6),
+                image: logoImage.isNotEmpty && !logoImage.toLowerCase().endsWith('.svg')
+                    ? DecorationImage(
+                        image: logoImage.startsWith('http')
+                            ? NetworkImage(logoImage) as ImageProvider
+                            : AssetImage(logoImage),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: logoImage.toLowerCase().endsWith('.svg')
+                  ? ClipOval(
+                      child: SvgPicture.asset(
+                        logoImage,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : null,
             ),
           ),
         ],

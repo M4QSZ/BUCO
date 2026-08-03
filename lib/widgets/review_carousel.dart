@@ -50,7 +50,7 @@ class _ReviewCarouselState extends State<ReviewCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 100, // Altura fija para el PageView
+          height: 160, // Altura fija para el PageView
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {

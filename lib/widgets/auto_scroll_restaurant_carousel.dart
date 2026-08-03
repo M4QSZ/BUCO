@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:provider/provider.dart';
+import '../providers/restaurant_provider.dart';
 import 'restaurant_card.dart';
 import 'carousel_indicator.dart';
 
 class AutoScrollRestaurantCarousel extends StatefulWidget {
   final List<Map<String, dynamic>> restaurants;
+  final Color indicatorActiveColor;
 
   const AutoScrollRestaurantCarousel({
     Key? key,
     required this.restaurants,
+    this.indicatorActiveColor = const Color(0xFF2E563B),
   }) : super(key: key);
 
   @override
@@ -95,15 +99,19 @@ class _AutoScrollRestaurantCarouselState extends State<AutoScrollRestaurantCarou
                 padding: const EdgeInsets.symmetric(horizontal: 45),
                 itemCount: widget.restaurants.length,
                 itemBuilder: (context, index) {
+                  final restaurantProvider = context.watch<RestaurantProvider>();
+                  final restName = widget.restaurants[index]['name'] as String;
                   return Padding(
                     padding: EdgeInsets.only(right: index == widget.restaurants.length - 1 ? 0 : 24.0),
                     child: RestaurantCard(
-                      name: widget.restaurants[index]['name'],
+                      name: restName,
                       type: '',
                       rating: widget.restaurants[index]['rating'],
                       isSavedStyle: true,
                       imageUrl: widget.restaurants[index]['imageUrl'],
                       cardColor: widget.restaurants[index]['cardColor'],
+                      isFavorite: restaurantProvider.isFavorite(restName),
+                      onFavoriteToggle: () => restaurantProvider.toggleFavorite(restName, data: widget.restaurants[index]),
                     ),
                   );
                 },
@@ -115,7 +123,7 @@ class _AutoScrollRestaurantCarouselState extends State<AutoScrollRestaurantCarou
         CarouselIndicator(
           itemCount: widget.restaurants.length,
           currentIndex: _currentIndex,
-          activeColor: greenBg,
+          activeColor: widget.indicatorActiveColor,
         ),
       ],
     );
